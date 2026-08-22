@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: #f0fdf6;
+  --color-brand-100: #dcfce9;
+  --color-brand-200: #bbf7d3;
+  --color-brand-300: #86efb0;
+  --color-brand-400: #4ade87;
+  --color-brand-500: #22c565;
+  --color-brand-600: #16a350;
+  --color-brand-700: #158142;
+  --color-brand-800: #166538;
+  --color-brand-900: #145430;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+}
+
+.font-brand {
+  font-family: 'Michroma', sans-serif;
+  letter-spacing: 0.35em;
+  font-weight: 400;
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #6d3df5 0%, #321a8f 45%, #10152a 100%);
+}
+
+@utility brand-panel-bg {
+  background-color: #05050a;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
