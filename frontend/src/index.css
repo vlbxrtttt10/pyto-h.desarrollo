@@ -19,6 +19,19 @@ body {
   @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
 }
 
+input,
+select,
+textarea {
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-violet-400);
+}
+
 .font-brand {
   font-family: 'Michroma', sans-serif;
   letter-spacing: 0.35em;

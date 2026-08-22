@@ -11,6 +11,7 @@ import OperatorRanking from './pages/OperatorRanking'
 import Trucks from './pages/Trucks'
 import Operators from './pages/Operators'
 import HaulRoutes from './pages/HaulRoutes'
+import Users from './pages/Users'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -50,6 +51,7 @@ export default function App() {
         <Route path="flota" element={<Trucks />} />
         <Route path="operadores" element={<Operators />} />
         <Route path="rutas" element={<HaulRoutes />} />
+        <Route path="usuarios" element={<Users />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\HaulTripController;
 use App\Http\Controllers\Api\MechanicalAlertController;
 use App\Http\Controllers\Api\OperatorController;
 use App\Http\Controllers\Api\TruckController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/ping', fn () => response()->json(['status' => 'ok']));
@@ -31,4 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/mechanical-alerts', [MechanicalAlertController::class, 'index']);
     Route::patch('/mechanical-alerts/{mechanicalAlert}', [MechanicalAlertController::class, 'update']);
+
+    Route::get('/users/modules', [UserController::class, 'modules']);
+    Route::apiResource('users', UserController::class);
 });

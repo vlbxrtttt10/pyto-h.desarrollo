@@ -39,12 +39,13 @@ const featureVariants = {
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('admin@aleri.mining')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(true)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -53,16 +54,20 @@ export default function Login() {
     try {
       await login(email, password)
       Notify.success('Ingreso correctamente')
-      navigate('/')
+      setSuccess(true)
+      setTimeout(() => navigate('/'), 500)
     } catch (err) {
       setError(err.response?.data?.message || 'No se pudo iniciar sesion.')
-    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="relative flex min-h-screen bg-white dark:bg-[#0b0b12]">
+    <motion.div
+      animate={success ? { opacity: 0 } : { opacity: 1 }}
+      transition={{ duration: 0.5, ease: 'easeInOut' }}
+      className="relative flex min-h-screen overflow-hidden bg-white dark:bg-[#0b0b12]"
+    >
       <ThemeToggle className="absolute right-6 top-6 z-20" />
 
       {/* Panel izquierdo: formulario */}
@@ -74,7 +79,7 @@ export default function Login() {
           className="mx-auto w-full max-w-sm"
         >
           <div className="mb-10">
-            <AnimatedLogo className="-ml-9 h-24 w-72" />
+            <AnimatedLogo className="h-28 w-80" />
             <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">Inicia sesion en tu cuenta</p>
           </div>
 
@@ -92,7 +97,7 @@ export default function Login() {
                 <input
                   type="email"
                   required
-                  placeholder="ejemplo@aleri.com"
+                  placeholder="usuario@aleri.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-violet-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:placeholder:text-slate-600"
@@ -160,10 +165,6 @@ export default function Login() {
               {loading ? 'Ingresando...' : 'Iniciar sesion'}
             </motion.button>
           </motion.form>
-
-          <p className="mt-8 text-center text-xs text-slate-400 dark:text-slate-600">
-            Usuario semilla: admin@aleri.mining / password
-          </p>
         </motion.div>
       </div>
 
@@ -240,6 +241,6 @@ export default function Login() {
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }

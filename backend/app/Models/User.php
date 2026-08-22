@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_super_admin',
     ];
 
     /**
@@ -45,6 +47,29 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_super_admin' => 'boolean',
         ];
+    }
+
+    public function modulePermissions(): HasMany
+    {
+        return $this->hasMany(ModulePermission::class);
+    }
+
+    /**
+     * "Admin total" implica acceso completo a todos los modulos,
+     * independientemente de lo guardado en module_permissions.
+     */
+    public function hasModulePermission(string $module, string $action): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+
+        $permission = $this->relationLoaded('modulePermissions')
+            ? $this->modulePermissions->firstWhere('module', $module)
+            : $this->modulePermissions()->where('module', $module)->first();
+
+        return (bool) ($permission?->{"can_{$action}"} ?? false);
     }
 }

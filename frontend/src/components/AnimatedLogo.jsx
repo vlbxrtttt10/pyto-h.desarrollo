@@ -43,7 +43,7 @@ export default function AnimatedLogo({ className = '' }) {
       animate={popped ? { scale: [1, 1.18, 1] } : { scale: 1 }}
       transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
     >
-      <svg viewBox={viewBox} className="h-full w-full overflow-visible">
+      <svg viewBox={viewBox} preserveAspectRatio="xMinYMid meet" className="h-full w-full overflow-visible">
         {flatPaths.map(({ d, color, transform }, i) => {
           const resolvedColor = color === TEXT_COLOR && theme === 'light' ? 'rgb(15,23,42)' : color
           return (

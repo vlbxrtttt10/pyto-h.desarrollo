@@ -48,3 +48,11 @@ export const haulRoutesApi = {
   update: (id, payload) => client.put(`/haul-routes/${id}`, payload),
   remove: (id) => client.delete(`/haul-routes/${id}`),
 }
+
+export const usersApi = {
+  list: () => client.get('/users'),
+  modules: () => client.get('/users/modules'),
+  create: (payload) => client.post('/users', payload),
+  update: (id, payload) => client.put(`/users/${id}`, payload),
+  remove: (id) => client.delete(`/users/${id}`),
+}

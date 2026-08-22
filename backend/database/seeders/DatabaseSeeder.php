@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\HaulRoute;
 use App\Models\HaulTrip;
+use App\Models\ModulePermission;
 use App\Models\Operator;
 use App\Models\Truck;
 use App\Models\User;
@@ -17,10 +18,22 @@ class DatabaseSeeder extends Seeder
 
     public function run(FuelIntelligenceService $fuelIntelligence): void
     {
-        User::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Admin Aleri',
             'email' => 'admin@aleri.mining',
+            'is_super_admin' => true,
         ]);
+
+        foreach (array_keys(ModulePermission::MODULES) as $module) {
+            ModulePermission::create([
+                'user_id' => $admin->id,
+                'module' => $module,
+                'can_view' => true,
+                'can_create' => true,
+                'can_edit' => true,
+                'can_delete' => true,
+            ]);
+        }
 
         $trucks = Truck::factory(8)->create();
         $operators = Operator::factory(12)->create();

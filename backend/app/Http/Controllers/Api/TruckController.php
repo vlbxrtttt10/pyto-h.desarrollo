@@ -16,7 +16,6 @@ class TruckController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => ['required', 'string', 'unique:trucks,code'],
             'model' => ['required', 'string'],
             'tank_capacity_liters' => ['required', 'numeric', 'min:0'],
             'empty_weight_tons' => ['required', 'numeric', 'min:0'],
@@ -24,9 +23,21 @@ class TruckController extends Controller
             'status' => ['sometimes', 'in:active,maintenance,inactive'],
         ]);
 
+        $validated['code'] = $this->nextCode();
+
         $truck = Truck::create($validated);
 
         return response()->json($truck, 201);
+    }
+
+    private function nextCode(): string
+    {
+        $lastNumber = Truck::query()
+            ->selectRaw("MAX(CAST(SUBSTRING(code, 5) AS UNSIGNED)) as last_number")
+            ->where('code', 'like', 'CAM-%')
+            ->value('last_number');
+
+        return sprintf('CAM-%03d', ($lastNumber ?? 0) + 1);
     }
 
     public function show(Truck $truck)

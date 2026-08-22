@@ -24,7 +24,7 @@ class AuthController extends Controller
             ]);
         }
 
-        $user = User::where('email', $credentials['email'])->firstOrFail();
+        $user = User::with('modulePermissions')->where('email', $credentials['email'])->firstOrFail();
         $token = $user->createToken('aleri-spa')->plainTextToken;
 
         return response()->json([
@@ -42,6 +42,6 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json($request->user()->load('modulePermissions'));
     }
 }

@@ -33,7 +33,10 @@ const navGroups = [
   {
     icon: 'bx-id-card',
     label: 'Personal',
-    items: [{ to: '/operadores', label: 'Operadores' }],
+    items: [
+      { to: '/operadores', label: 'Operadores' },
+      { to: '/usuarios', label: 'Usuarios' },
+    ],
   },
 ]
 
@@ -68,7 +71,6 @@ export default function Layout() {
         <div className="flex items-center justify-between px-5 py-6">
           <div>
             <p className="font-brand text-sm leading-tight text-slate-900 dark:text-slate-100">ALERI</p>
-            <p className="text-[10px] leading-tight text-slate-500">Fuel Intelligence</p>
           </div>
           <ThemeToggle />
         </div>
@@ -135,8 +137,8 @@ export default function Layout() {
 
         <div className="border-t border-slate-200 px-4 py-4 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-700 text-white">
-              <i className="bx bx-user text-lg" />
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-violet-500 to-indigo-700">
+              <img src="/user.svg" alt="" className="h-full w-full object-cover" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">{user?.name}</p>
