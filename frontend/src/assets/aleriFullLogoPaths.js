@@ -1,8 +1,3 @@
-// Paths vectoriales del logo Aleri (icono "A" + texto ALERI), extraidos
-// por vectorizacion automatica desde el PNG fuente. El icono se aproximo
-// a 2 tonos solidos (el gradiente 3D original se aplana); el texto se
-// vectorizo por separado y se reubica con un transform de traslacion.
-// No editar a mano.
 export const viewBox = "0 0 1536 1024"
 
 export const logoLayers = [
