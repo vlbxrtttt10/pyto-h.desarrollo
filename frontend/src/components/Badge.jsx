@@ -6,10 +6,10 @@ const SEVERITY_STYLES = {
 }
 
 const CAUSE_LABELS = {
-  excessive_idling: 'Ralenti excesivo',
-  harsh_driving: 'Conduccion agresiva',
-  wrong_gear_usage: 'Uso incorrecto de marchas',
-  possible_mechanical_fault: 'Posible falla mecanica',
+  pressure_drop: 'Caida de presion',
+  volume_mismatch: 'Desajuste de volumen',
+  cycle_time_increase: 'Ciclo mas lento',
+  possible_leak: 'Posible fuga',
   unknown: 'Causa desconocida',
 }
 

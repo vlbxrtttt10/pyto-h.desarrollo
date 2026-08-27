@@ -8,45 +8,48 @@ export const authApi = {
 
 export const dashboardApi = {
   summary: (params) => client.get('/dashboard/summary', { params }),
-  operatorRanking: (params) => client.get('/dashboard/operator-ranking', { params }),
+  technicianRanking: (params) => client.get('/dashboard/technician-ranking', { params }),
   fleetOverview: () => client.get('/dashboard/fleet-overview'),
 }
 
-export const haulTripsApi = {
-  list: (params) => client.get('/haul-trips', { params }),
-  create: (payload) => client.post('/haul-trips', payload),
-  show: (id) => client.get(`/haul-trips/${id}`),
-  remove: (id) => client.delete(`/haul-trips/${id}`),
+export const serviceVisitsApi = {
+  list: (params) => client.get('/service-visits', { params }),
+  create: (payload) => client.post('/service-visits', payload),
+  show: (id) => client.get(`/service-visits/${id}`),
+  remove: (id) => client.delete(`/service-visits/${id}`),
 }
 
-export const fuelAnomaliesApi = {
-  list: (params) => client.get('/fuel-anomalies', { params }),
+export const equipmentAnomaliesApi = {
+  list: (params) => client.get('/equipment-anomalies', { params }),
 }
 
-export const mechanicalAlertsApi = {
-  list: (params) => client.get('/mechanical-alerts', { params }),
-  update: (id, payload) => client.patch(`/mechanical-alerts/${id}`, payload),
+export const maintenanceAlertsApi = {
+  list: (params) => client.get('/maintenance-alerts', { params }),
+  update: (id, payload) => client.patch(`/maintenance-alerts/${id}`, payload),
 }
 
-export const trucksApi = {
-  list: () => client.get('/trucks'),
-  create: (payload) => client.post('/trucks', payload),
-  update: (id, payload) => client.put(`/trucks/${id}`, payload),
-  remove: (id) => client.delete(`/trucks/${id}`),
+export const equipmentsApi = {
+  list: () => client.get('/equipments'),
+  create: (payload) => client.post('/equipments', payload),
+  show: (id) => client.get(`/equipments/${id}`),
+  update: (id, payload) => client.put(`/equipments/${id}`, payload),
+  remove: (id) => client.delete(`/equipments/${id}`),
 }
 
-export const operatorsApi = {
-  list: () => client.get('/operators'),
-  create: (payload) => client.post('/operators', payload),
-  update: (id, payload) => client.put(`/operators/${id}`, payload),
-  remove: (id) => client.delete(`/operators/${id}`),
+export const techniciansApi = {
+  list: () => client.get('/technicians'),
+  create: (payload) => client.post('/technicians', payload),
+  show: (id) => client.get(`/technicians/${id}`),
+  update: (id, payload) => client.put(`/technicians/${id}`, payload),
+  remove: (id) => client.delete(`/technicians/${id}`),
 }
 
-export const haulRoutesApi = {
-  list: () => client.get('/haul-routes'),
-  create: (payload) => client.post('/haul-routes', payload),
-  update: (id, payload) => client.put(`/haul-routes/${id}`, payload),
-  remove: (id) => client.delete(`/haul-routes/${id}`),
+export const componentsApi = {
+  list: () => client.get('/components'),
+  create: (payload) => client.post('/components', payload),
+  show: (id) => client.get(`/components/${id}`),
+  update: (id, payload) => client.put(`/components/${id}`, payload),
+  remove: (id) => client.delete(`/components/${id}`),
 }
 
 export const usersApi = {

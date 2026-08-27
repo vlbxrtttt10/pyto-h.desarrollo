@@ -12,13 +12,13 @@ class ModulePermission extends Model
      * visible para cualquier usuario autenticado, sin permisos granulares.
      */
     public const MODULES = [
-        'flota' => 'Flota de camiones',
-        'rutas' => 'Rutas de acarreo',
-        'operadores' => 'Operadores',
-        'viajes' => 'Viajes de acarreo',
-        'anomalias' => 'Anomalias de combustible',
-        'alertas_mecanicas' => 'Alertas mecanicas',
-        'ranking' => 'Ranking eco-conduccion',
+        'equipos' => 'Equipos',
+        'componentes' => 'Componentes',
+        'tecnicos' => 'Tecnicos',
+        'visitas' => 'Visitas de servicio',
+        'anomalias' => 'Anomalias de equipo',
+        'alertas_mantenimiento' => 'Alertas de mantenimiento',
+        'ranking' => 'Ranking de tecnicos',
         'usuarios' => 'Usuarios',
     ];
 

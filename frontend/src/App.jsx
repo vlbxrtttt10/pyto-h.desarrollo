@@ -4,14 +4,27 @@ import Layout from './components/Layout'
 import Loader from './components/Loader'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-import HaulTrips from './pages/HaulTrips'
-import FuelAnomalies from './pages/FuelAnomalies'
-import MechanicalAlerts from './pages/MechanicalAlerts'
-import OperatorRanking from './pages/OperatorRanking'
-import Trucks from './pages/Trucks'
-import Operators from './pages/Operators'
-import HaulRoutes from './pages/HaulRoutes'
-import Users from './pages/Users'
+
+import Equipos from './pages/Equipos/Equipos'
+import EquipoCreate from './pages/Equipos/EquipoCreate'
+import EquipoShow from './pages/Equipos/EquipoShow'
+
+import Componentes from './pages/Componentes/Componentes'
+import ComponenteCreate from './pages/Componentes/ComponenteCreate'
+
+import Tecnicos from './pages/Tecnicos/Tecnicos'
+import TecnicoCreate from './pages/Tecnicos/TecnicoCreate'
+import TecnicoShow from './pages/Tecnicos/TecnicoShow'
+
+import Visitas from './pages/Visitas/Visitas'
+import VisitaCreate from './pages/Visitas/VisitaCreate'
+import VisitaShow from './pages/Visitas/VisitaShow'
+
+import Anomalias from './pages/Anomalias/Anomalias'
+import AlertasMantenimiento from './pages/AlertasMantenimiento/AlertasMantenimiento'
+import Ranking from './pages/Ranking/Ranking'
+
+import Usuarios from './pages/Usuarios/Usuarios'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -44,14 +57,27 @@ export default function App() {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="viajes" element={<HaulTrips />} />
-        <Route path="anomalias" element={<FuelAnomalies />} />
-        <Route path="alertas-mecanicas" element={<MechanicalAlerts />} />
-        <Route path="ranking" element={<OperatorRanking />} />
-        <Route path="flota" element={<Trucks />} />
-        <Route path="operadores" element={<Operators />} />
-        <Route path="rutas" element={<HaulRoutes />} />
-        <Route path="usuarios" element={<Users />} />
+
+        <Route path="equipos" element={<Equipos />} />
+        <Route path="equipos/crear" element={<EquipoCreate />} />
+        <Route path="equipos/:id" element={<EquipoShow />} />
+
+        <Route path="componentes" element={<Componentes />} />
+        <Route path="componentes/crear" element={<ComponenteCreate />} />
+
+        <Route path="tecnicos" element={<Tecnicos />} />
+        <Route path="tecnicos/crear" element={<TecnicoCreate />} />
+        <Route path="tecnicos/:id" element={<TecnicoShow />} />
+
+        <Route path="visitas" element={<Visitas />} />
+        <Route path="visitas/crear" element={<VisitaCreate />} />
+        <Route path="visitas/:id" element={<VisitaShow />} />
+
+        <Route path="anomalias" element={<Anomalias />} />
+        <Route path="alertas-mantenimiento" element={<AlertasMantenimiento />} />
+        <Route path="ranking" element={<Ranking />} />
+
+        <Route path="usuarios" element={<Usuarios />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

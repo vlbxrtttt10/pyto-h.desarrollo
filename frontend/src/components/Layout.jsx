@@ -7,34 +7,34 @@ import Notify, { Confirm } from '../lib/notify'
 
 const navGroups = [
   {
-    icon: 'bx-car',
+    icon: 'bx-wrench',
     label: 'Flota',
     items: [
-      { to: '/flota', label: 'Flota de camiones' },
-      { to: '/rutas', label: 'Rutas de acarreo' },
+      { to: '/equipos', label: 'Equipos' },
+      { to: '/componentes', label: 'Componentes' },
     ],
   },
   {
     icon: 'bx-trip',
     label: 'Operacion',
     items: [
-      { to: '/viajes', label: 'Viajes de acarreo' },
-      { to: '/ranking', label: 'Ranking eco-conduccion' },
+      { to: '/visitas', label: 'Visitas de servicio' },
+      { to: '/ranking', label: 'Ranking de tecnicos' },
     ],
   },
   {
     icon: 'bx-error-alt',
     label: 'Alertas',
     items: [
-      { to: '/anomalias', label: 'Anomalias de combustible' },
-      { to: '/alertas-mecanicas', label: 'Alertas mecanicas' },
+      { to: '/anomalias', label: 'Anomalias de equipo' },
+      { to: '/alertas-mantenimiento', label: 'Alertas de mantenimiento' },
     ],
   },
   {
     icon: 'bx-id-card',
     label: 'Personal',
     items: [
-      { to: '/operadores', label: 'Operadores' },
+      { to: '/tecnicos', label: 'Tecnicos' },
       { to: '/usuarios', label: 'Usuarios' },
     ],
   },

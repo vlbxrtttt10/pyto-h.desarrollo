@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ComponentController;
 use App\Http\Controllers\Api\DashboardController;
-use App\Http\Controllers\Api\FuelAnomalyController;
-use App\Http\Controllers\Api\HaulRouteController;
-use App\Http\Controllers\Api\HaulTripController;
-use App\Http\Controllers\Api\MechanicalAlertController;
-use App\Http\Controllers\Api\OperatorController;
-use App\Http\Controllers\Api\TruckController;
+use App\Http\Controllers\Api\EquipmentAnomalyController;
+use App\Http\Controllers\Api\EquipmentController;
+use App\Http\Controllers\Api\MaintenanceAlertController;
+use App\Http\Controllers\Api\ServiceVisitController;
+use App\Http\Controllers\Api\TechnicianController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,18 +20,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
 
     Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
-    Route::get('/dashboard/operator-ranking', [DashboardController::class, 'operatorRanking']);
+    Route::get('/dashboard/technician-ranking', [DashboardController::class, 'technicianRanking']);
     Route::get('/dashboard/fleet-overview', [DashboardController::class, 'fleetOverview']);
 
-    Route::apiResource('trucks', TruckController::class);
-    Route::apiResource('operators', OperatorController::class);
-    Route::apiResource('haul-routes', HaulRouteController::class);
-    Route::apiResource('haul-trips', HaulTripController::class)->only(['index', 'store', 'show', 'destroy']);
+    Route::apiResource('equipments', EquipmentController::class);
+    Route::apiResource('technicians', TechnicianController::class);
+    Route::apiResource('components', ComponentController::class);
+    Route::apiResource('service-visits', ServiceVisitController::class)->only(['index', 'store', 'show', 'destroy']);
 
-    Route::get('/fuel-anomalies', [FuelAnomalyController::class, 'index']);
+    Route::get('/equipment-anomalies', [EquipmentAnomalyController::class, 'index']);
 
-    Route::get('/mechanical-alerts', [MechanicalAlertController::class, 'index']);
-    Route::patch('/mechanical-alerts/{mechanicalAlert}', [MechanicalAlertController::class, 'update']);
+    Route::get('/maintenance-alerts', [MaintenanceAlertController::class, 'index']);
+    Route::patch('/maintenance-alerts/{maintenanceAlert}', [MaintenanceAlertController::class, 'update']);
 
     Route::get('/users/modules', [UserController::class, 'modules']);
     Route::apiResource('users', UserController::class);

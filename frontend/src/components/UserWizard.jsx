@@ -4,12 +4,12 @@ import Modal from './Modal'
 import Notify from '../lib/notify'
 
 const MODULE_ICONS = {
-  flota: 'bx-car',
-  rutas: 'bx-map-alt',
-  operadores: 'bx-id-card',
-  viajes: 'bx-trip',
+  equipos: 'bx-wrench',
+  componentes: 'bx-cog',
+  tecnicos: 'bx-id-card',
+  visitas: 'bx-trip',
   anomalias: 'bx-error-alt',
-  alertas_mecanicas: 'bx-wrench',
+  alertas_mantenimiento: 'bx-bell',
   ranking: 'bx-trophy',
   usuarios: 'bx-user',
 }

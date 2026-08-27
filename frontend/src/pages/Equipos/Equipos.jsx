@@ -1,0 +1,299 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { equipmentsApi } from '../../api/resources'
+import Loader from '../../components/Loader'
+import Modal from '../../components/Modal'
+import Notify, { Confirm } from '../../lib/notify'
+
+const STATUS_LABELS = {
+  operativo: 'Operativo',
+  en_falla: 'En falla',
+  en_mantenimiento: 'En mantenimiento',
+}
+
+const CRITICALITY_STYLES = {
+  alta: 'bg-rose-500/15 text-rose-700 dark:text-rose-400',
+  media: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
+  baja: 'bg-slate-200 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300',
+}
+
+const emptyForm = {
+  type: 'ULM',
+  model: '',
+  client: '',
+  site: '',
+  criticality: 'media',
+  install_date: '',
+  status: 'operativo',
+}
+
+export default function Equipos() {
+  const [equipos, setEquipos] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [form, setForm] = useState(emptyForm)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+  const [loadError, setLoadError] = useState(null)
+
+  function load() {
+    setLoadError(null)
+    equipmentsApi
+      .list()
+      .then((res) => setEquipos(res.data))
+      .catch((err) => setLoadError(err.response?.data?.message || 'No se pudieron cargar los equipos.'))
+  }
+
+  useEffect(() => {
+    load()
+  }, [])
+
+  function openEdit(equipo) {
+    setEditingId(equipo.id)
+    setForm({
+      type: equipo.type,
+      model: equipo.model,
+      client: equipo.client,
+      site: equipo.site || '',
+      criticality: equipo.criticality,
+      install_date: equipo.install_date ? equipo.install_date.slice(0, 10) : '',
+      status: equipo.status,
+    })
+    setError(null)
+    setModalOpen(true)
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setSaving(true)
+    setError(null)
+    try {
+      await equipmentsApi.update(editingId, form)
+      Notify.success('Equipo actualizado correctamente')
+      setModalOpen(false)
+      load()
+    } catch (err) {
+      const message = err.response?.data?.message || 'No se pudo actualizar el equipo.'
+      setError(message)
+      Notify.failure(message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function handleDelete(equipo) {
+    Confirm.show(
+      'Eliminar equipo',
+      `¿Estas seguro de eliminar ${equipo.code}? Se eliminaran tambien sus visitas de servicio registradas.`,
+      'Si, eliminar',
+      'Cancelar',
+      async () => {
+        try {
+          await equipmentsApi.remove(equipo.id)
+          Notify.success('Equipo eliminado')
+          load()
+        } catch (err) {
+          Notify.failure(err.response?.data?.message || 'No se pudo eliminar el equipo.')
+        }
+      },
+      () => {},
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="flex items-center gap-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">
+            <i className="bx bx-wrench text-violet-400" />
+            Equipos
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">Camiones lubricadores y unidades hidraulicas en campo.</p>
+        </div>
+
+        <Link
+          to="/equipos/crear"
+          className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+        >
+          <i className="bx bx-plus text-base" />
+          Nuevo equipo
+        </Link>
+      </div>
+
+      {loadError ? (
+        <p className="rounded-xl border border-rose-200 bg-rose-500/5 p-8 text-center text-sm text-rose-600 dark:border-rose-700/50 dark:text-rose-400">
+          {loadError}
+        </p>
+      ) : !equipos ? (
+        <Loader />
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/60">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
+                <th className="px-4 py-3">Codigo</th>
+                <th className="px-4 py-3">Modelo</th>
+                <th className="px-4 py-3">Cliente</th>
+                <th className="px-4 py-3">Sitio</th>
+                <th className="px-4 py-3">Criticidad</th>
+                <th className="px-4 py-3">Estado</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+              {equipos.map((equipo) => (
+                <tr key={equipo.id}>
+                  <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">
+                    <Link to={`/equipos/${equipo.id}`} className="hover:text-violet-600 dark:hover:text-violet-400">
+                      {equipo.code}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{equipo.model}</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{equipo.client}</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{equipo.site || '—'}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize ${CRITICALITY_STYLES[equipo.criticality]}`}>
+                      {equipo.criticality}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{STATUS_LABELS[equipo.status]}</td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        to={`/equipos/${equipo.id}`}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                      >
+                        <i className="bx bx-show text-sm" />
+                        Ver
+                      </Link>
+                      <button
+                        onClick={() => openEdit(equipo)}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400"
+                      >
+                        <i className="bx bx-edit text-sm" />
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(equipo)}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300"
+                      >
+                        <i className="bx bx-trash text-sm" />
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Editar equipo" maxWidth="max-w-2xl">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Tipo</label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="ULM">ULM — Camion lubricador</option>
+                <option value="ULP">ULP — Camioneta lubricadora</option>
+                <option value="UMO">UMO — Unidad movil hidraulica</option>
+                <option value="ULE">ULE — Estacion de lubricacion</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Modelo</label>
+              <input
+                required
+                autoFocus
+                value={form.model}
+                onChange={(e) => setForm({ ...form, model: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Cliente</label>
+              <input
+                required
+                value={form.client}
+                onChange={(e) => setForm({ ...form, client: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Sitio</label>
+              <input
+                value={form.site}
+                onChange={(e) => setForm({ ...form, site: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Criticidad</label>
+              <select
+                value={form.criticality}
+                onChange={(e) => setForm({ ...form, criticality: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="alta">Alta</option>
+                <option value="media">Media</option>
+                <option value="baja">Baja</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Fecha de instalacion</label>
+              <input
+                type="date"
+                value={form.install_date}
+                onChange={(e) => setForm({ ...form, install_date: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Estado</label>
+              <select
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="operativo">Operativo</option>
+                <option value="en_falla">En falla</option>
+                <option value="en_mantenimiento">En mantenimiento</option>
+              </select>
+            </div>
+          </div>
+
+          {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+
+          <div className="flex items-center justify-end gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+            >
+              <i className="bx bx-save text-base" />
+              {saving ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  )
+}
