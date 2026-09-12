@@ -10,10 +10,8 @@ return new class extends Migration
     {
         Schema::create('sensor_readings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('equipment_id')->constrained('equipments')->cascadeOnDelete();
-            $table->foreignId('component_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('equipment_component_id')->constrained()->cascadeOnDelete();
 
-            // Lectura enviada por el controlador (Node.js) que lee el PLC/sensor del equipo.
             $table->decimal('temperature_celsius', 8, 2);
             $table->decimal('pressure_psi', 8, 2);
             $table->decimal('grease_level_percent', 5, 2);
@@ -23,7 +21,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['equipment_id', 'read_at']);
+            $table->index(['equipment_component_id', 'read_at']);
         });
     }
 

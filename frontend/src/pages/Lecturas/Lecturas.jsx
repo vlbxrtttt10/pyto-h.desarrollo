@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { sensorReadingsApi, equipmentsApi, componentsApi } from '../../api/resources'
+import { sensorReadingsApi, equipmentsApi, equipmentComponentsApi } from '../../api/resources'
 import Loader from '../../components/Loader'
 import Modal from '../../components/Modal'
 import { CauseBadge, SeverityBadge } from '../../components/Badge'
@@ -17,7 +17,6 @@ function randomBetween(min, max) {
   return Math.round((min + Math.random() * (max - min)) * 100) / 100
 }
 
-/** Genera los valores de una lectura simulada segun el escenario elegido, a partir de los rangos normales del componente. */
 function buildSimulatedValues(component, scenario) {
   const normalTemperature = randomBetween(Number(component.min_temperature_celsius), Number(component.max_temperature_celsius))
   const normalPressure = randomBetween(Number(component.min_pressure_psi), Number(component.max_pressure_psi))
@@ -46,7 +45,7 @@ export default function Lecturas() {
   const [loadError, setLoadError] = useState(null)
 
   const [equipos, setEquipos] = useState([])
-  const [componentes, setComponentes] = useState([])
+  const [simInstalledComponents, setSimInstalledComponents] = useState([])
 
   const [simEquipmentId, setSimEquipmentId] = useState('')
   const [simComponentId, setSimComponentId] = useState('')
@@ -55,8 +54,9 @@ export default function Lecturas() {
   const [simResult, setSimResult] = useState(null)
 
   const [manualModalOpen, setManualModalOpen] = useState(false)
+  const [manualInstalledComponents, setManualInstalledComponents] = useState([])
   const [form, setForm] = useState({
-    equipment_id: '', component_id: '', temperature_celsius: '', pressure_psi: '', grease_level_percent: '', read_at: '',
+    equipment_id: '', equipment_component_id: '', temperature_celsius: '', pressure_psi: '', grease_level_percent: '', read_at: '',
   })
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState(null)
@@ -76,15 +76,40 @@ export default function Lecturas() {
   }, [page])
 
   useEffect(() => {
-    Promise.all([equipmentsApi.list(), componentsApi.list()])
-      .then(([equiposRes, componentesRes]) => {
-        setEquipos(equiposRes.data)
-        setComponentes(componentesRes.data)
-        if (equiposRes.data[0]) setSimEquipmentId(String(equiposRes.data[0].id))
-        if (componentesRes.data[0]) setSimComponentId(String(componentesRes.data[0].id))
+    equipmentsApi
+      .list()
+      .then((res) => {
+        setEquipos(res.data)
+        if (res.data[0]) setSimEquipmentId(String(res.data[0].id))
       })
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!simEquipmentId) {
+      setSimInstalledComponents([])
+      setSimComponentId('')
+      return
+    }
+    equipmentComponentsApi
+      .list(simEquipmentId)
+      .then((res) => {
+        setSimInstalledComponents(res.data)
+        setSimComponentId(res.data[0] ? String(res.data[0].id) : '')
+      })
+      .catch(() => setSimInstalledComponents([]))
+  }, [simEquipmentId])
+
+  useEffect(() => {
+    if (!form.equipment_id) {
+      setManualInstalledComponents([])
+      return
+    }
+    equipmentComponentsApi
+      .list(form.equipment_id)
+      .then((res) => setManualInstalledComponents(res.data))
+      .catch(() => setManualInstalledComponents([]))
+  }, [form.equipment_id])
 
   function handleDelete(reading) {
     Confirm.show(
@@ -106,19 +131,18 @@ export default function Lecturas() {
   }
 
   async function handleSimulate() {
-    const component = componentes.find((c) => String(c.id) === String(simComponentId))
-    if (!simEquipmentId || !component) {
-      Notify.failure('Selecciona un equipo y un componente para simular.')
+    const installation = simInstalledComponents.find((ec) => String(ec.id) === String(simComponentId))
+    if (!simEquipmentId || !installation) {
+      Notify.failure('Selecciona un equipo y un componente instalado para simular.')
       return
     }
 
     setSimulating(true)
     setSimResult(null)
     try {
-      const values = buildSimulatedValues(component, simScenario)
+      const values = buildSimulatedValues(installation.component, simScenario)
       const payload = {
-        equipment_id: simEquipmentId,
-        component_id: simComponentId,
+        equipment_component_id: simComponentId,
         read_at: new Date().toISOString(),
         ...values,
       }
@@ -129,7 +153,7 @@ export default function Lecturas() {
       setSimResult({
         values,
         anomaly,
-        equipmentCode: res.data.equipment?.code,
+        equipmentCode: res.data.equipment_component?.equipment?.code,
       })
 
       if (anomaly) {
@@ -151,7 +175,8 @@ export default function Lecturas() {
   }
 
   function openManualForm() {
-    setForm({ equipment_id: '', component_id: '', temperature_celsius: '', pressure_psi: '', grease_level_percent: '', read_at: '' })
+    setForm({ equipment_id: '', equipment_component_id: '', temperature_celsius: '', pressure_psi: '', grease_level_percent: '', read_at: '' })
+    setManualInstalledComponents([])
     setFormError(null)
     setManualModalOpen(true)
   }
@@ -161,7 +186,8 @@ export default function Lecturas() {
     setSaving(true)
     setFormError(null)
     try {
-      await sensorReadingsApi.create(form)
+      const { equipment_id, ...payload } = form
+      await sensorReadingsApi.create(payload)
       Notify.success('Lectura registrada correctamente')
       setManualModalOpen(false)
       setPage(1)
@@ -236,15 +262,20 @@ export default function Lecturas() {
             </select>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-slate-500">Componente</label>
+            <label className="mb-1.5 block text-xs font-medium text-slate-500">Componente instalado</label>
             <select
               value={simComponentId}
               onChange={(e) => setSimComponentId(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              disabled={!simInstalledComponents.length}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             >
-              {componentes.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
+              {simInstalledComponents.length === 0 ? (
+                <option value="">Este equipo no tiene componentes instalados</option>
+              ) : (
+                simInstalledComponents.map((ec) => (
+                  <option key={ec.id} value={ec.id}>{ec.component?.name}</option>
+                ))
+              )}
             </select>
           </div>
           <div>
@@ -264,7 +295,7 @@ export default function Lecturas() {
         <button
           type="button"
           onClick={handleSimulate}
-          disabled={simulating || !equipos.length || !componentes.length}
+          disabled={simulating || !equipos.length || !simInstalledComponents.length}
           className="mt-4 flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-60"
         >
           <i className="bx bx-broadcast text-base" />
@@ -320,10 +351,10 @@ export default function Lecturas() {
                   <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{new Date(reading.read_at).toLocaleString()}</td>
                   <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
                     <Link to="/equipos" className="hover:text-violet-600 dark:hover:text-violet-400">
-                      {reading.equipment?.code}
+                      {reading.equipment_component?.equipment?.code}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{reading.component?.name}</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{reading.equipment_component?.component?.name}</td>
                   <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{reading.temperature_celsius}°C</td>
                   <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{reading.pressure_psi} PSI</td>
                   <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{reading.grease_level_percent}%</td>
@@ -385,7 +416,7 @@ export default function Lecturas() {
               <select
                 required
                 value={form.equipment_id}
-                onChange={(e) => setForm({ ...form, equipment_id: e.target.value })}
+                onChange={(e) => setForm({ ...form, equipment_id: e.target.value, equipment_component_id: '' })}
                 className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="">Seleccionar...</option>
@@ -395,16 +426,19 @@ export default function Lecturas() {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-500">Componente</label>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Componente instalado</label>
               <select
                 required
-                value={form.component_id}
-                onChange={(e) => setForm({ ...form, component_id: e.target.value })}
-                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                value={form.equipment_component_id}
+                onChange={(e) => setForm({ ...form, equipment_component_id: e.target.value })}
+                disabled={!form.equipment_id}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               >
-                <option value="">Seleccionar...</option>
-                {componentes.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                <option value="">
+                  {form.equipment_id ? 'Seleccionar...' : 'Primero elige un equipo'}
+                </option>
+                {manualInstalledComponents.map((ec) => (
+                  <option key={ec.id} value={ec.id}>{ec.component?.name}</option>
                 ))}
               </select>
             </div>

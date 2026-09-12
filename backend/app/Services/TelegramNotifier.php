@@ -17,11 +17,6 @@ class TelegramNotifier
         $this->chatId = config('services.telegram.chat_id');
     }
 
-    /**
-     * Envia una alerta de mantenimiento por Telegram. Si el bot todavia no
-     * esta configurado (sin token/chat_id), no falla: registra el mensaje en
-     * el log para poder verificar el contenido mientras se configura el bot.
-     */
     public function sendMaintenanceAlert(MaintenanceAlert $alert): bool
     {
         $alert->loadMissing('equipment');
@@ -58,11 +53,6 @@ class TelegramNotifier
         return true;
     }
 
-    /**
-     * Obtiene los updates pendientes del bot (mensajes y pulsaciones de
-     * botones) via long-polling. $offset evita recibir de nuevo updates ya
-     * procesados en una consulta anterior.
-     */
     public function getUpdates(?int $offset = null): array
     {
         if (! $this->botToken) {
@@ -72,7 +62,7 @@ class TelegramNotifier
         $response = Http::get("https://api.telegram.org/bot{$this->botToken}/getUpdates", array_filter([
             'offset' => $offset,
             'timeout' => 25,
-            'allowed_updates' => json_encode(['callback_query']),
+            'allowed_updates' => json_encode(['callback_query', 'message']),
         ]));
 
         if ($response->failed()) {
@@ -84,10 +74,19 @@ class TelegramNotifier
         return $response->json('result', []);
     }
 
-    /**
-     * Responde visualmente a la pulsacion de un boton (el "reloj" de carga
-     * que ve el usuario en Telegram mientras se procesa la accion).
-     */
+    public function sendMessage(int $chatId, string $text): void
+    {
+        if (! $this->botToken) {
+            return;
+        }
+
+        Http::post("https://api.telegram.org/bot{$this->botToken}/sendMessage", [
+            'chat_id' => $chatId,
+            'text' => $text,
+            'parse_mode' => 'HTML',
+        ]);
+    }
+
     public function answerCallbackQuery(string $callbackQueryId, string $text): void
     {
         if (! $this->botToken) {
@@ -100,11 +99,6 @@ class TelegramNotifier
         ]);
     }
 
-    /**
-     * Edita el mensaje original tras procesar la accion, quitando el boton y
-     * agregando una linea de confirmacion, para que quede claro en el chat
-     * que la alerta ya fue atendida.
-     */
     public function markMessageAsHandled(int $chatId, int $messageId, string $originalText, string $confirmationLine): void
     {
         if (! $this->botToken) {

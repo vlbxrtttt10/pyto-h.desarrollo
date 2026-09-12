@@ -46,7 +46,8 @@ class EquipmentController extends Controller
     {
         return response()->json(
             $equipment->load([
-                'sensorReadings' => fn ($q) => $q->with(['component', 'equipmentAnomalies'])->orderByDesc('read_at'),
+                'equipmentComponents.component',
+                'sensorReadings' => fn ($q) => $q->with(['equipmentComponent.component', 'equipmentAnomalies'])->orderByDesc('read_at'),
                 'maintenanceAlerts',
             ])
         );

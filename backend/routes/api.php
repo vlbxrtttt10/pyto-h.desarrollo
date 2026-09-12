@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComponentController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EquipmentAnomalyController;
+use App\Http\Controllers\Api\EquipmentComponentController;
 use App\Http\Controllers\Api\EquipmentController;
 use App\Http\Controllers\Api\MaintenanceAlertController;
 use App\Http\Controllers\Api\SensorReadingController;
@@ -22,6 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/fleet-overview', [DashboardController::class, 'fleetOverview']);
 
     Route::apiResource('equipments', EquipmentController::class);
+    Route::apiResource('equipments.components', EquipmentComponentController::class)
+        ->only(['index', 'store', 'destroy'])
+        ->parameters(['components' => 'equipmentComponent']);
     Route::apiResource('components', ComponentController::class);
     Route::apiResource('sensor-readings', SensorReadingController::class)->only(['index', 'store', 'show', 'destroy']);
 

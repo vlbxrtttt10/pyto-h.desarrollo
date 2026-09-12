@@ -31,8 +31,8 @@ class Component extends Model
         ];
     }
 
-    public function sensorReadings(): HasMany
+    public function equipmentComponents(): HasMany
     {
-        return $this->hasMany(SensorReading::class);
+        return $this->hasMany(EquipmentComponent::class);
     }
 }

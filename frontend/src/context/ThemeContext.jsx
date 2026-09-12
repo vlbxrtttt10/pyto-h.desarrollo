@@ -16,8 +16,40 @@ export function ThemeProvider({ children }) {
     localStorage.setItem('aleri_theme', theme)
   }, [theme])
 
-  function toggleTheme() {
-    setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+  function toggleTheme(originX, originY) {
+    const next = theme === 'dark' ? 'light' : 'dark'
+
+    if (!document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTheme(next)
+      return
+    }
+
+    const x = originX ?? window.innerWidth / 2
+    const y = originY ?? window.innerHeight / 2
+    const maxRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    )
+
+    const transition = document.startViewTransition(() => {
+      setTheme(next)
+    })
+
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${maxRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 550,
+          easing: 'ease-in-out',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      )
+    })
   }
 
   return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>

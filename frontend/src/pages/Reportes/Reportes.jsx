@@ -46,11 +46,6 @@ function InfoCard({ icon, title, text }) {
   )
 }
 
-/**
- * Diagrama de flujo dibujado a mano con SVG inline, estilo whiteboard, sin
- * dependencias externas. Muestra el recorrido completo de un dato desde el
- * sensor fisico hasta la notificacion final por Telegram.
- */
 function FlowDiagram() {
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900/60">
@@ -64,34 +59,24 @@ function FlowDiagram() {
           </marker>
         </defs>
 
-        {/* estilos comunes via clases tailwind con currentColor no aplica en svg fill, se usa clase por nodo */}
-
-        {/* 1. Equipo con sensor */}
         <NodeBox x={20} y={40} w={190} h={130} icon="bx-car" title="Equipo en campo" subtitle="Camion lubricador (Hydromaq)" accent="#0ea5e9" />
         <SensorDot x={175} y={55} />
 
-        {/* Flecha 1 -> 2 */}
         <path d="M210 105 H 300" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="2" fill="none" markerEnd="url(#arrow)" />
         <EdgeLabel x={255} y={95} text="lee sensor" />
 
-        {/* 2. Controlador Node.js */}
         <NodeBox x={300} y={40} w={190} h={130} icon="bx-desktop" title="Controlador" subtitle="Node.js (simulado hoy)" accent="#22c55e" />
 
-        {/* Flecha 2 -> 3 */}
         <path d="M490 105 H 580" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="2" fill="none" markerEnd="url(#arrow)" />
         <EdgeLabel x={535} y={95} text="POST" />
 
-        {/* 3. API Aleri */}
         <NodeBox x={580} y={40} w={210} h={130} icon="bx-plug" title="API Aleri" subtitle="/api/sensor-readings" accent="#8b5cf6" />
 
-        {/* Flecha 3 -> 4 (baja) */}
         <path d="M685 170 V 250" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="2" fill="none" markerEnd="url(#arrow)" />
         <EdgeLabel x={735} y={215} text="guarda + evalua" />
 
-        {/* 4. Motor de deteccion */}
         <NodeBox x={580} y={250} w={210} h={130} icon="bx-brain" title="Motor de deteccion" subtitle="Compara vs. rango normal" accent="#f59e0b" />
 
-        {/* Bifurcacion: dentro de rango vs fuera de rango */}
         <path d="M580 300 H 460" className="stroke-brand-500" strokeWidth="2" fill="none" markerEnd="url(#arrow)" />
         <EdgeLabel x={500} y={290} text="dentro de rango" tone="good" />
         <NodeBox x={260} y={250} w={200} h={100} icon="bx-check-circle" title="Sin novedad" subtitle="Se guarda el historial" accent="#16a34a" small />
@@ -99,24 +84,18 @@ function FlowDiagram() {
         <path d="M685 380 V 440" stroke="#e11d48" strokeWidth="2.5" fill="none" markerEnd="url(#arrowAlert)" />
         <EdgeLabel x={735} y={415} text="fuera de rango" tone="bad" />
 
-        {/* 5. Anomalia */}
         <NodeBox x={580} y={440} w={210} h={110} icon="bx-error-alt" title="Anomalia registrada" subtitle="Sobrecalentamiento / Sobrepresion / Grasa" accent="#e11d48" />
 
-        {/* Flecha 5 -> 6 */}
         <path d="M790 495 H 880" stroke="#e11d48" strokeWidth="2.5" fill="none" markerEnd="url(#arrowAlert)" />
         <EdgeLabel x={835} y={485} text="3 lecturas seguidas" tone="bad" small />
 
-        {/* 6. Alerta de mantenimiento */}
         <NodeBox x={880} y={440} w={220} h={110} icon="bx-bell" title="Alerta de mantenimiento" subtitle="Riesgo: medio / alto / critico" accent="#e11d48" />
 
-        {/* Flecha 6 -> 7 (sube) */}
         <path d="M990 440 V 340" stroke="#0088cc" strokeWidth="2.5" fill="none" markerEnd="url(#arrow)" />
         <EdgeLabel x={1040} y={390} text="notifica" tone="telegram" />
 
-        {/* 7. Telegram */}
         <NodeBox x={880} y={200} w={220} h={130} icon="bxl-telegram" title="Notificacion" subtitle="Bot de Telegram → equipo tecnico" accent="#0088cc" />
 
-        {/* Flecha final hacia el usuario */}
         <path d="M990 200 V 130" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="2" fill="none" markerEnd="url(#arrow)" />
         <EdgeLabel x={1040} y={165} text="llega al celular" small />
 

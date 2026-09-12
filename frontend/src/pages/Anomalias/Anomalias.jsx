@@ -66,7 +66,7 @@ export default function Anomalias() {
                   to="/equipos"
                   className="text-sm font-semibold text-slate-800 hover:text-violet-600 dark:text-slate-200 dark:hover:text-violet-400"
                 >
-                  {anomaly.sensor_reading?.equipment?.code}
+                  {anomaly.sensor_reading?.equipment_component?.equipment?.code}
                 </Link>
                 <div className="flex items-center gap-1.5">
                   <CauseBadge cause={anomaly.cause} />
@@ -74,7 +74,7 @@ export default function Anomalias() {
                 </div>
               </div>
               <p className="mt-1 text-xs text-slate-500">
-                {anomaly.sensor_reading?.component?.name} ·{' '}
+                {anomaly.sensor_reading?.equipment_component?.component?.name} ·{' '}
                 {new Date(anomaly.sensor_reading?.read_at).toLocaleString()}
               </p>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{anomaly.explanation}</p>

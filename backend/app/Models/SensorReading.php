@@ -12,8 +12,7 @@ class SensorReading extends Model
     use HasFactory;
 
     protected $fillable = [
-        'equipment_id',
-        'component_id',
+        'equipment_component_id',
         'temperature_celsius',
         'pressure_psi',
         'grease_level_percent',
@@ -31,14 +30,9 @@ class SensorReading extends Model
         ];
     }
 
-    public function equipment(): BelongsTo
+    public function equipmentComponent(): BelongsTo
     {
-        return $this->belongsTo(Equipment::class);
-    }
-
-    public function component(): BelongsTo
-    {
-        return $this->belongsTo(Component::class);
+        return $this->belongsTo(EquipmentComponent::class);
     }
 
     public function equipmentAnomalies(): HasMany

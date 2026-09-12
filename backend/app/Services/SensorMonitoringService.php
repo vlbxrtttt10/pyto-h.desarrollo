@@ -4,26 +4,21 @@ namespace App\Services;
 
 use App\Events\DashboardUpdated;
 use App\Models\EquipmentAnomaly;
+use App\Models\EquipmentComponent;
 use App\Models\MaintenanceAlert;
 use App\Models\SensorReading;
 
 class SensorMonitoringService
 {
-    /** Cuantas de las ultimas lecturas se evaluan para decidir si se abre una alerta de mantenimiento. */
     private const LOOKBACK_READINGS = 3;
 
     public function __construct(private TelegramNotifier $telegramNotifier)
     {
     }
 
-    /**
-     * Procesa una lectura de sensor recien recibida: evalua si esta fuera de
-     * los rangos normales del componente y, de ser asi, registra una anomalia
-     * y evalua si corresponde abrir una alerta de mantenimiento.
-     */
     public function processReading(SensorReading $reading): SensorReading
     {
-        $reading->load('component');
+        $reading->load('equipmentComponent.component');
 
         $anomaly = $this->detectAnomaly($reading);
 
@@ -33,7 +28,7 @@ class SensorMonitoringService
                 ...$anomaly,
             ]);
 
-            $this->evaluateMaintenanceRisk($reading->equipment_id);
+            $this->evaluateMaintenanceRisk($reading->equipment_component_id);
         }
 
         DashboardUpdated::dispatch('sensor_reading');
@@ -41,14 +36,9 @@ class SensorMonitoringService
         return $reading->fresh(['equipmentAnomalies']);
     }
 
-    /**
-     * Compara la lectura contra los rangos normales del componente y determina
-     * la causa mas relevante de anomalia, si existe. Devuelve null si la
-     * lectura esta dentro de rango en los tres frentes.
-     */
     private function detectAnomaly(SensorReading $reading): ?array
     {
-        $component = $reading->component;
+        $component = $reading->equipmentComponent->component;
 
         $temperature = (float) $reading->temperature_celsius;
         $pressure = (float) $reading->pressure_psi;
@@ -58,8 +48,6 @@ class SensorMonitoringService
         $overpressure = $pressure > (float) $component->max_pressure_psi;
         $lowGrease = $grease < (float) $component->min_grease_level_percent;
 
-        // Se prioriza la condicion mas critica cuando hay varias a la vez:
-        // sobrepresion (riesgo de derrame/fuga inmediato) > sobrecalentamiento > bajo nivel de grasa.
         if ($overpressure) {
             $excess = $pressure - (float) $component->max_pressure_psi;
             $excessPercent = $component->max_pressure_psi > 0
@@ -137,13 +125,9 @@ class SensorMonitoringService
         };
     }
 
-    /**
-     * Si la mayoria de las ultimas lecturas de un equipo presentan anomalias,
-     * se abre (o refresca) una alerta de mantenimiento preventiva.
-     */
-    public function evaluateMaintenanceRisk(int $equipmentId): void
+    public function evaluateMaintenanceRisk(int $equipmentComponentId): void
     {
-        $recentReadings = SensorReading::where('equipment_id', $equipmentId)
+        $recentReadings = SensorReading::where('equipment_component_id', $equipmentComponentId)
             ->orderByDesc('read_at')
             ->limit(self::LOOKBACK_READINGS)
             ->get();
@@ -184,6 +168,8 @@ class SensorMonitoringService
             ->unique()
             ->implode(', ');
 
+        $equipmentId = EquipmentComponent::whereKey($equipmentComponentId)->value('equipment_id');
+
         $wasAlreadyOpen = MaintenanceAlert::where('equipment_id', $equipmentId)->where('status', 'open')->exists();
 
         $alert = MaintenanceAlert::updateOrCreate(
@@ -203,8 +189,6 @@ class SensorMonitoringService
             ]
         );
 
-        // Se notifica por Telegram cuando la alerta es nueva, o cuando ya
-        // existia pero el nivel de riesgo escalo y aun no se habia avisado.
         if (! $wasAlreadyOpen || ! $alert->telegram_notified) {
             $this->telegramNotifier->sendMaintenanceAlert($alert);
         }

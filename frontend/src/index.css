@@ -54,3 +54,56 @@ textarea:focus {
     display: none;
   }
 }
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 9999px;
+  }
+
+  &:hover {
+    scrollbar-color: var(--color-slate-300) transparent;
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-slate-300);
+    }
+  }
+
+  .dark &:hover {
+    scrollbar-color: var(--color-slate-700) transparent;
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-slate-700);
+    }
+  }
+}
+
+/* Barrido circular al cambiar de tema (ver ThemeContext.toggleTheme).
+   Se desactiva el cross-fade por defecto del navegador: la capa nueva del
+   tema se revela por encima sin transicion propia, y es el clip-path
+   animado en JS el que dibuja el circulo expandiendose desde el boton. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}

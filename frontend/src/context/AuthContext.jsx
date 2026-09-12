@@ -31,7 +31,6 @@ export function AuthProvider({ children }) {
     try {
       await authApi.logout()
     } catch {
-      // Ignorar errores de red al cerrar sesion; el token local se limpia igual.
     }
     localStorage.removeItem('aleri_token')
     setUser(null)

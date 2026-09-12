@@ -54,8 +54,6 @@ class UserController extends Controller
             unset($validated['payload']['password']);
         }
 
-        // Evita que el ultimo super admin se quite a si mismo el permiso,
-        // dejando el sistema sin nadie con acceso total.
         if ($user->is_super_admin && array_key_exists('is_super_admin', $validated['payload']) && ! $validated['payload']['is_super_admin']) {
             $remainingSuperAdmins = User::where('is_super_admin', true)->where('id', '!=', $user->id)->count();
             if ($remainingSuperAdmins === 0) {
@@ -103,11 +101,6 @@ class UserController extends Controller
         abort_unless($request->user()->hasModulePermission($module, $action), 403, 'No tienes permiso para realizar esta accion.');
     }
 
-    /**
-     * Sincroniza la matriz de permisos por modulo del usuario. Si es "admin
-     * total", se le otorgan los 4 permisos en todos los modulos conocidos,
-     * ignorando la matriz enviada (asi la UI y la API quedan consistentes).
-     */
     private function syncPermissions(User $user, array $permissions): void
     {
         if ($user->is_super_admin) {

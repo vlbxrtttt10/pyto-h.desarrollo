@@ -7,10 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ModulePermission extends Model
 {
-    /**
-     * Modulos gestionables del sistema. El Dashboard no aparece aqui: es
-     * visible para cualquier usuario autenticado, sin permisos granulares.
-     */
     public const MODULES = [
         'equipos' => 'Equipos',
         'componentes' => 'Componentes',

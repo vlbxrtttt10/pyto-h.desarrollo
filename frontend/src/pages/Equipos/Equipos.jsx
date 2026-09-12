@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { equipmentsApi } from '../../api/resources'
+import { componentsApi, equipmentComponentsApi, equipmentsApi } from '../../api/resources'
 import Loader from '../../components/Loader'
 import Modal from '../../components/Modal'
 import { CauseBadge, SeverityBadge } from '../../components/Badge'
@@ -42,6 +42,10 @@ export default function Equipos() {
   const [showEquipo, setShowEquipo] = useState(null)
   const [showError, setShowError] = useState(null)
 
+  const [catalogComponents, setCatalogComponents] = useState([])
+  const [selectedComponentId, setSelectedComponentId] = useState('')
+  const [installing, setInstalling] = useState(false)
+
   const isEditing = editingId !== null
 
   function load() {
@@ -81,11 +85,61 @@ export default function Equipos() {
   function openShow(equipo) {
     setShowEquipo(null)
     setShowError(null)
+    setSelectedComponentId('')
     setShowModalOpen(true)
     equipmentsApi
       .show(equipo.id)
       .then((res) => setShowEquipo(res.data))
       .catch((err) => setShowError(err.response?.data?.message || 'No se pudo cargar el equipo.'))
+    if (catalogComponents.length === 0) {
+      componentsApi
+        .list()
+        .then((res) => setCatalogComponents(res.data))
+        .catch(() => {})
+    }
+  }
+
+  function refreshShowEquipo() {
+    if (!showEquipo) return
+    equipmentsApi
+      .show(showEquipo.id)
+      .then((res) => setShowEquipo(res.data))
+      .catch((err) => setShowError(err.response?.data?.message || 'No se pudo cargar el equipo.'))
+  }
+
+  async function handleInstallComponent(e) {
+    e.preventDefault()
+    if (!selectedComponentId || !showEquipo) return
+    setInstalling(true)
+    try {
+      await equipmentComponentsApi.create(showEquipo.id, { component_id: selectedComponentId })
+      Notify.success('Componente instalado en el equipo')
+      setSelectedComponentId('')
+      refreshShowEquipo()
+    } catch (err) {
+      Notify.failure(err.response?.data?.message || 'No se pudo instalar el componente.')
+    } finally {
+      setInstalling(false)
+    }
+  }
+
+  function handleUninstallComponent(equipmentComponent) {
+    Confirm.show(
+      'Quitar componente',
+      `¿Estas seguro de quitar ${equipmentComponent.component?.name} de este equipo? Se eliminaran tambien sus lecturas de sensor registradas.`,
+      'Si, quitar',
+      'Cancelar',
+      async () => {
+        try {
+          await equipmentComponentsApi.remove(showEquipo.id, equipmentComponent.id)
+          Notify.success('Componente retirado del equipo')
+          refreshShowEquipo()
+        } catch (err) {
+          Notify.failure(err.response?.data?.message || 'No se pudo quitar el componente.')
+        }
+      },
+      () => {},
+    )
   }
 
   async function handleSubmit(e) {
@@ -330,7 +384,7 @@ export default function Equipos() {
         </form>
       </Modal>
 
-      <Modal open={showModalOpen} onClose={() => setShowModalOpen(false)} title={showEquipo ? showEquipo.code : 'Equipo'} maxWidth="max-w-3xl">
+      <Modal open={showModalOpen} onClose={() => setShowModalOpen(false)} title={showEquipo ? showEquipo.code : 'Equipo'} maxWidth="max-w-4xl">
         {showError ? (
           <p className="rounded-xl border border-rose-200 bg-rose-500/5 p-6 text-center text-sm text-rose-600 dark:border-rose-700/50 dark:text-rose-400">
             {showError}
@@ -360,6 +414,64 @@ export default function Equipos() {
               </div>
             </div>
 
+            <div className="space-y-2.5 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Componentes instalados</p>
+              </div>
+
+              {showEquipo.equipment_components?.length > 0 ? (
+                <ul className="space-y-1.5">
+                  {showEquipo.equipment_components.map((ec) => (
+                    <li
+                      key={ec.id}
+                      className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800/40"
+                    >
+                      <div>
+                        <p className="font-medium text-slate-800 dark:text-slate-200">{ec.component?.name}</p>
+                        <p className="text-xs text-slate-500">
+                          {ec.installed_at ? `Instalado el ${new Date(ec.installed_at).toLocaleDateString()}` : 'Sin fecha de instalacion'}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleUninstallComponent(ec)}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300"
+                      >
+                        <i className="bx bx-trash text-sm" />
+                        Quitar
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-slate-500">Este equipo aun no tiene componentes instalados.</p>
+              )}
+
+              <form onSubmit={handleInstallComponent} className="flex items-center gap-2 pt-1">
+                <select
+                  value={selectedComponentId}
+                  onChange={(e) => setSelectedComponentId(e.target.value)}
+                  className="flex-1 rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                >
+                  <option value="">Selecciona un componente del catalogo...</option>
+                  {catalogComponents
+                    .filter((c) => !showEquipo.equipment_components?.some((ec) => ec.component_id === c.id))
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.equipment_type})
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="submit"
+                  disabled={!selectedComponentId || installing}
+                  className="flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+                >
+                  <i className="bx bx-plus text-base" />
+                  Instalar
+                </button>
+              </form>
+            </div>
+
             {showEquipo.maintenance_alerts?.length > 0 && (
               <div className="space-y-2">
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Alertas de mantenimiento</p>
@@ -375,43 +487,45 @@ export default function Equipos() {
               </div>
             )}
 
-            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
               <div className="border-b border-slate-200 bg-slate-50 px-4 py-2.5 dark:border-slate-800 dark:bg-slate-800/40">
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Historial de lecturas de sensores</p>
               </div>
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
-                    <th className="px-4 py-2.5">Fecha</th>
-                    <th className="px-4 py-2.5">Componente</th>
-                    <th className="px-4 py-2.5">Temp.</th>
-                    <th className="px-4 py-2.5">Presion</th>
-                    <th className="px-4 py-2.5">Grasa</th>
-                    <th className="px-4 py-2.5">Anomalia</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                  {showEquipo.sensor_readings?.map((reading) => (
-                    <tr key={reading.id}>
-                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">{new Date(reading.read_at).toLocaleString()}</td>
-                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">{reading.component?.name}</td>
-                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">{reading.temperature_celsius}°C</td>
-                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">{reading.pressure_psi} PSI</td>
-                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">{reading.grease_level_percent}%</td>
-                      <td className="px-4 py-2.5">
-                        {reading.equipment_anomalies?.[0] ? (
-                          <div className="flex items-center gap-1.5">
-                            <CauseBadge cause={reading.equipment_anomalies[0].cause} />
-                            <SeverityBadge severity={reading.equipment_anomalies[0].severity} />
-                          </div>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
+              <div className="scrollbar-thin max-h-72 overflow-y-auto overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="sticky top-0 z-10 bg-white dark:bg-slate-900">
+                    <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
+                      <th className="px-3 py-2.5">Fecha</th>
+                      <th className="px-3 py-2.5">Componente</th>
+                      <th className="px-3 py-2.5">Temp.</th>
+                      <th className="px-3 py-2.5">Presion</th>
+                      <th className="px-3 py-2.5">Grasa</th>
+                      <th className="px-3 py-2.5">Anomalia</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {showEquipo.sensor_readings?.map((reading) => (
+                      <tr key={reading.id}>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-600 dark:text-slate-400">{new Date(reading.read_at).toLocaleString()}</td>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-600 dark:text-slate-400">{reading.equipment_component?.component?.name}</td>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-600 dark:text-slate-400">{reading.temperature_celsius}°C</td>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-600 dark:text-slate-400">{reading.pressure_psi} PSI</td>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-600 dark:text-slate-400">{reading.grease_level_percent}%</td>
+                        <td className="whitespace-nowrap px-3 py-2.5">
+                          {reading.equipment_anomalies?.[0] ? (
+                            <div className="flex items-center gap-1">
+                              <CauseBadge cause={reading.equipment_anomalies[0].cause} />
+                              <SeverityBadge severity={reading.equipment_anomalies[0].severity} />
+                            </div>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
