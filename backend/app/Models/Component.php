@@ -13,22 +13,26 @@ class Component extends Model
     protected $fillable = [
         'name',
         'equipment_type',
-        'expected_pressure_psi',
-        'expected_volume_liters',
-        'expected_cycle_minutes',
+        'min_temperature_celsius',
+        'max_temperature_celsius',
+        'min_pressure_psi',
+        'max_pressure_psi',
+        'min_grease_level_percent',
     ];
 
     protected function casts(): array
     {
         return [
-            'expected_pressure_psi' => 'decimal:2',
-            'expected_volume_liters' => 'decimal:2',
-            'expected_cycle_minutes' => 'decimal:2',
+            'min_temperature_celsius' => 'decimal:2',
+            'max_temperature_celsius' => 'decimal:2',
+            'min_pressure_psi' => 'decimal:2',
+            'max_pressure_psi' => 'decimal:2',
+            'min_grease_level_percent' => 'decimal:2',
         ];
     }
 
-    public function serviceVisits(): HasMany
+    public function sensorReadings(): HasMany
     {
-        return $this->hasMany(ServiceVisit::class);
+        return $this->hasMany(SensorReading::class);
     }
 }

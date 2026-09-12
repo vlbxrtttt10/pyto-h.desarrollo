@@ -61,7 +61,7 @@ export default function AlertasMantenimiento() {
           <i className="bx bx-bell text-violet-400" />
           Alertas de mantenimiento
         </h1>
-        <p className="mt-1 text-sm text-slate-500">Equipos con riesgo de falla detectado a partir de visitas consecutivas.</p>
+        <p className="mt-1 text-sm text-slate-500">Equipos con riesgo de falla detectado a partir de lecturas de sensores consecutivas.</p>
       </div>
 
       {alerts.length === 0 ? (
@@ -76,7 +76,7 @@ export default function AlertasMantenimiento() {
                 <div>
                   <div className="flex items-center gap-2">
                     <Link
-                      to={`/equipos/${alert.equipment?.id}`}
+                      to="/equipos"
                       className="text-sm font-semibold text-slate-800 hover:text-violet-600 dark:text-slate-200 dark:hover:text-violet-400"
                     >
                       {alert.equipment?.code}
@@ -85,9 +85,17 @@ export default function AlertasMantenimiento() {
                   </div>
                   <p className="mt-1 text-sm font-medium text-slate-800 dark:text-slate-200">{alert.title}</p>
                 </div>
-                <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold uppercase text-slate-600 dark:bg-slate-900 dark:text-slate-300">
-                  Riesgo {RISK_LABELS[alert.risk_level]}
-                </span>
+                <div className="flex items-center gap-2">
+                  {alert.telegram_notified && (
+                    <span className="flex items-center gap-1 rounded-full bg-sky-500/15 px-2.5 py-1 text-xs font-medium text-sky-700 dark:text-sky-400">
+                      <i className="bx bxl-telegram text-sm" />
+                      Notificado
+                    </span>
+                  )}
+                  <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold uppercase text-slate-600 dark:bg-slate-900 dark:text-slate-300">
+                    Riesgo {RISK_LABELS[alert.risk_level]}
+                  </span>
+                </div>
               </div>
 
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{alert.description}</p>

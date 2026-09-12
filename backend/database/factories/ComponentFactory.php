@@ -13,9 +13,11 @@ class ComponentFactory extends Factory
                 'Bomba Zeus', 'Gabinete Kronos', 'Sistema de dispensado', 'Valvula de alivio',
             ]),
             'equipment_type' => $this->faker->randomElement(['ULM', 'ULP', 'UMO', 'ULE']),
-            'expected_pressure_psi' => $this->faker->randomFloat(2, 150, 220),
-            'expected_volume_liters' => $this->faker->randomFloat(2, 8, 25),
-            'expected_cycle_minutes' => $this->faker->randomFloat(2, 3, 12),
+            'min_temperature_celsius' => $this->faker->randomFloat(2, 10, 20),
+            'max_temperature_celsius' => $this->faker->randomFloat(2, 70, 90),
+            'min_pressure_psi' => $this->faker->randomFloat(2, 10, 30),
+            'max_pressure_psi' => $this->faker->randomFloat(2, 150, 220),
+            'min_grease_level_percent' => $this->faker->randomFloat(2, 15, 25),
         ];
     }
 }

@@ -10,7 +10,7 @@ class EquipmentAnomalyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = EquipmentAnomaly::with(['serviceVisit.equipment', 'serviceVisit.technician', 'serviceVisit.component']);
+        $query = EquipmentAnomaly::with(['sensorReading.equipment', 'sensorReading.component']);
 
         if ($request->filled('cause')) {
             $query->where('cause', $request->query('cause'));

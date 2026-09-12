@@ -16,15 +16,15 @@ class MaintenanceAlert extends Model
         'description',
         'recommended_action',
         'risk_level',
-        'consecutive_deviation_percent',
-        'visits_considered',
+        'readings_considered',
         'status',
+        'telegram_notified',
     ];
 
     protected function casts(): array
     {
         return [
-            'consecutive_deviation_percent' => 'decimal:2',
+            'telegram_notified' => 'boolean',
         ];
     }
 

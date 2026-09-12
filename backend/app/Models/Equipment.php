@@ -30,9 +30,9 @@ class Equipment extends Model
         ];
     }
 
-    public function serviceVisits(): HasMany
+    public function sensorReadings(): HasMany
     {
-        return $this->hasMany(ServiceVisit::class);
+        return $this->hasMany(SensorReading::class);
     }
 
     public function maintenanceAlerts(): HasMany

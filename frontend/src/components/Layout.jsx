@@ -15,11 +15,10 @@ const navGroups = [
     ],
   },
   {
-    icon: 'bx-trip',
-    label: 'Operacion',
+    icon: 'bx-broadcast',
+    label: 'Monitoreo',
     items: [
-      { to: '/visitas', label: 'Visitas de servicio' },
-      { to: '/ranking', label: 'Ranking de tecnicos' },
+      { to: '/lecturas', label: 'Lecturas de sensores' },
     ],
   },
   {
@@ -34,7 +33,6 @@ const navGroups = [
     icon: 'bx-id-card',
     label: 'Personal',
     items: [
-      { to: '/tecnicos', label: 'Tecnicos' },
       { to: '/usuarios', label: 'Usuarios' },
     ],
   },
@@ -44,7 +42,6 @@ const navGroups = [
 // sidebar pero quedan deshabilitados hasta que existan esas paginas.
 const systemNavItems = [
   { label: 'Configuracion', icon: 'bx-cog' },
-  { label: 'Reportes', icon: 'bx-file' },
 ]
 
 export default function Layout() {
@@ -104,6 +101,31 @@ export default function Layout() {
                     )}
                     <i className="bx bx-grid-alt relative z-10 text-base" />
                     <span className="relative z-10 flex-1">Dashboard</span>
+                  </>
+                )}
+              </NavLink>
+
+              <NavLink
+                to="/reportes"
+                className={({ isActive }) =>
+                  `relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'text-violet-600 dark:text-violet-300'
+                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <motion.span
+                        layoutId="sidebar-active"
+                        className="absolute inset-0 rounded-lg bg-violet-100 dark:bg-violet-600/20"
+                        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                      />
+                    )}
+                    <i className="bx bx-sitemap relative z-10 text-base" />
+                    <span className="relative z-10 flex-1">Reportes</span>
                   </>
                 )}
               </NavLink>

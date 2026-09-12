@@ -18,9 +18,11 @@ class ComponentController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string'],
             'equipment_type' => ['required', 'in:ULM,ULP,UMO,ULE'],
-            'expected_pressure_psi' => ['required', 'numeric', 'min:0'],
-            'expected_volume_liters' => ['required', 'numeric', 'min:0'],
-            'expected_cycle_minutes' => ['required', 'numeric', 'min:0'],
+            'min_temperature_celsius' => ['required', 'numeric'],
+            'max_temperature_celsius' => ['required', 'numeric', 'gt:min_temperature_celsius'],
+            'min_pressure_psi' => ['required', 'numeric', 'min:0'],
+            'max_pressure_psi' => ['required', 'numeric', 'gt:min_pressure_psi'],
+            'min_grease_level_percent' => ['required', 'numeric', 'min:0', 'max:100'],
         ]);
 
         $component = Component::create($validated);
@@ -38,9 +40,11 @@ class ComponentController extends Controller
         $validated = $request->validate([
             'name' => ['sometimes', 'string'],
             'equipment_type' => ['sometimes', 'in:ULM,ULP,UMO,ULE'],
-            'expected_pressure_psi' => ['sometimes', 'numeric', 'min:0'],
-            'expected_volume_liters' => ['sometimes', 'numeric', 'min:0'],
-            'expected_cycle_minutes' => ['sometimes', 'numeric', 'min:0'],
+            'min_temperature_celsius' => ['sometimes', 'numeric'],
+            'max_temperature_celsius' => ['sometimes', 'numeric'],
+            'min_pressure_psi' => ['sometimes', 'numeric', 'min:0'],
+            'max_pressure_psi' => ['sometimes', 'numeric'],
+            'min_grease_level_percent' => ['sometimes', 'numeric', 'min:0', 'max:100'],
         ]);
 
         $component->update($validated);

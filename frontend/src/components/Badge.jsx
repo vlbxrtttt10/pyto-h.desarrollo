@@ -6,10 +6,9 @@ const SEVERITY_STYLES = {
 }
 
 const CAUSE_LABELS = {
-  pressure_drop: 'Caida de presion',
-  volume_mismatch: 'Desajuste de volumen',
-  cycle_time_increase: 'Ciclo mas lento',
-  possible_leak: 'Posible fuga',
+  overheating: 'Sobrecalentamiento',
+  overpressure: 'Sobrepresion',
+  low_grease_level: 'Bajo nivel de grasa',
   unknown: 'Causa desconocida',
 }
 

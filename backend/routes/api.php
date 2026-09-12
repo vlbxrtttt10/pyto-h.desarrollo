@@ -6,8 +6,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EquipmentAnomalyController;
 use App\Http\Controllers\Api\EquipmentController;
 use App\Http\Controllers\Api\MaintenanceAlertController;
-use App\Http\Controllers\Api\ServiceVisitController;
-use App\Http\Controllers\Api\TechnicianController;
+use App\Http\Controllers\Api\SensorReadingController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,13 +19,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
 
     Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
-    Route::get('/dashboard/technician-ranking', [DashboardController::class, 'technicianRanking']);
     Route::get('/dashboard/fleet-overview', [DashboardController::class, 'fleetOverview']);
 
     Route::apiResource('equipments', EquipmentController::class);
-    Route::apiResource('technicians', TechnicianController::class);
     Route::apiResource('components', ComponentController::class);
-    Route::apiResource('service-visits', ServiceVisitController::class)->only(['index', 'store', 'show', 'destroy']);
+    Route::apiResource('sensor-readings', SensorReadingController::class)->only(['index', 'store', 'show', 'destroy']);
 
     Route::get('/equipment-anomalies', [EquipmentAnomalyController::class, 'index']);
 

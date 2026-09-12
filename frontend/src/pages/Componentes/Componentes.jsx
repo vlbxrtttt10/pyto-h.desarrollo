@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { componentsApi } from '../../api/resources'
 import Loader from '../../components/Loader'
 import Modal from '../../components/Modal'
@@ -8,9 +7,11 @@ import Notify, { Confirm } from '../../lib/notify'
 const emptyForm = {
   name: '',
   equipment_type: 'ULM',
-  expected_pressure_psi: '',
-  expected_volume_liters: '',
-  expected_cycle_minutes: '',
+  min_temperature_celsius: '',
+  max_temperature_celsius: '',
+  min_pressure_psi: '',
+  max_pressure_psi: '',
+  min_grease_level_percent: '',
 }
 
 export default function Componentes() {
@@ -21,6 +22,8 @@ export default function Componentes() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [loadError, setLoadError] = useState(null)
+
+  const isEditing = editingId !== null
 
   function load() {
     setLoadError(null)
@@ -34,14 +37,23 @@ export default function Componentes() {
     load()
   }, [])
 
+  function openCreate() {
+    setEditingId(null)
+    setForm(emptyForm)
+    setError(null)
+    setModalOpen(true)
+  }
+
   function openEdit(componente) {
     setEditingId(componente.id)
     setForm({
       name: componente.name,
       equipment_type: componente.equipment_type,
-      expected_pressure_psi: componente.expected_pressure_psi,
-      expected_volume_liters: componente.expected_volume_liters,
-      expected_cycle_minutes: componente.expected_cycle_minutes,
+      min_temperature_celsius: componente.min_temperature_celsius,
+      max_temperature_celsius: componente.max_temperature_celsius,
+      min_pressure_psi: componente.min_pressure_psi,
+      max_pressure_psi: componente.max_pressure_psi,
+      min_grease_level_percent: componente.min_grease_level_percent,
     })
     setError(null)
     setModalOpen(true)
@@ -52,12 +64,17 @@ export default function Componentes() {
     setSaving(true)
     setError(null)
     try {
-      await componentsApi.update(editingId, form)
-      Notify.success('Componente actualizado correctamente')
+      if (isEditing) {
+        await componentsApi.update(editingId, form)
+        Notify.success('Componente actualizado correctamente')
+      } else {
+        await componentsApi.create(form)
+        Notify.success('Componente agregado correctamente')
+      }
       setModalOpen(false)
       load()
     } catch (err) {
-      const message = err.response?.data?.message || 'No se pudo actualizar el componente.'
+      const message = err.response?.data?.message || 'No se pudo guardar el componente.'
       setError(message)
       Notify.failure(message)
     } finally {
@@ -92,16 +109,17 @@ export default function Componentes() {
             <i className="bx bx-cog text-violet-400" />
             Componentes
           </h1>
-          <p className="mt-1 text-sm text-slate-500">Valores de referencia usados por el motor de deteccion de anomalias.</p>
+          <p className="mt-1 text-sm text-slate-500">Rangos normales de operacion usados por el motor de deteccion de fallas.</p>
         </div>
 
-        <Link
-          to="/componentes/crear"
+        <button
+          type="button"
+          onClick={openCreate}
           className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
         >
           <i className="bx bx-plus text-base" />
           Nuevo componente
-        </Link>
+        </button>
       </div>
 
       {loadError ? (
@@ -117,9 +135,9 @@ export default function Componentes() {
               <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
                 <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3">Tipo de equipo</th>
-                <th className="px-4 py-3">Presion esperada</th>
-                <th className="px-4 py-3">Volumen esperado</th>
-                <th className="px-4 py-3">Ciclo esperado</th>
+                <th className="px-4 py-3">Temperatura normal</th>
+                <th className="px-4 py-3">Presion normal</th>
+                <th className="px-4 py-3">Grasa minima</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -128,9 +146,13 @@ export default function Componentes() {
                 <tr key={componente.id}>
                   <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">{componente.name}</td>
                   <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{componente.equipment_type}</td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{Number(componente.expected_pressure_psi).toFixed(1)} PSI</td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{Number(componente.expected_volume_liters).toFixed(1)} L</td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{Number(componente.expected_cycle_minutes).toFixed(1)} min</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                    {Number(componente.min_temperature_celsius).toFixed(0)}°C – {Number(componente.max_temperature_celsius).toFixed(0)}°C
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                    {Number(componente.min_pressure_psi).toFixed(0)} – {Number(componente.max_pressure_psi).toFixed(0)} PSI
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{Number(componente.min_grease_level_percent).toFixed(0)}%</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-3">
                       <button
@@ -156,7 +178,7 @@ export default function Componentes() {
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Editar componente">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={isEditing ? 'Editar componente' : 'Nuevo componente'} maxWidth="max-w-xl">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -184,43 +206,76 @@ export default function Componentes() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-500">Presion esperada (PSI)</label>
-              <input
-                required
-                type="number"
-                step="0.01"
-                min="0"
-                value={form.expected_pressure_psi}
-                onChange={(e) => setForm({ ...form, expected_pressure_psi: e.target.value })}
-                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              />
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Rango normal de temperatura</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-500">Minima (°C)</label>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  value={form.min_temperature_celsius}
+                  onChange={(e) => setForm({ ...form, min_temperature_celsius: e.target.value })}
+                  className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-500">Maxima (°C)</label>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  value={form.max_temperature_celsius}
+                  onChange={(e) => setForm({ ...form, max_temperature_celsius: e.target.value })}
+                  className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                />
+              </div>
             </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-500">Volumen esperado (L)</label>
-              <input
-                required
-                type="number"
-                step="0.01"
-                min="0"
-                value={form.expected_volume_liters}
-                onChange={(e) => setForm({ ...form, expected_volume_liters: e.target.value })}
-                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Rango normal de presion</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-500">Minima (PSI)</label>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.min_pressure_psi}
+                  onChange={(e) => setForm({ ...form, min_pressure_psi: e.target.value })}
+                  className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-500">Maxima (PSI)</label>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.max_pressure_psi}
+                  onChange={(e) => setForm({ ...form, max_pressure_psi: e.target.value })}
+                  className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                />
+              </div>
             </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-500">Ciclo esperado (min)</label>
-              <input
-                required
-                type="number"
-                step="0.01"
-                min="0"
-                value={form.expected_cycle_minutes}
-                onChange={(e) => setForm({ ...form, expected_cycle_minutes: e.target.value })}
-                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              />
-            </div>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-slate-500">Nivel minimo de grasa (%)</label>
+            <input
+              required
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              value={form.min_grease_level_percent}
+              onChange={(e) => setForm({ ...form, min_grease_level_percent: e.target.value })}
+              className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            />
           </div>
 
           {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
@@ -238,8 +293,8 @@ export default function Componentes() {
               disabled={saving}
               className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
             >
-              <i className="bx bx-save text-base" />
-              {saving ? 'Guardando...' : 'Guardar cambios'}
+              <i className={`bx ${isEditing ? 'bx-save' : 'bx-plus'} text-base`} />
+              {saving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Agregar componente'}
             </button>
           </div>
         </form>
