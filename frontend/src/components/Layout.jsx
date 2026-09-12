@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
 import SidebarGroup from './SidebarGroup'
+import EquipmentStoppedAlert from './EquipmentStoppedAlert'
 import Notify, { Confirm } from '../lib/notify'
 
 const navGroups = [
@@ -38,12 +39,6 @@ const navGroups = [
   },
 ]
 
-// Sin ruta real todavia: se muestran para completar la estructura del
-// sidebar pero quedan deshabilitados hasta que existan esas paginas.
-const systemNavItems = [
-  { label: 'Configuracion', icon: 'bx-cog' },
-]
-
 export default function Layout() {
   const { user, logout } = useAuth()
   const location = useLocation()
@@ -64,6 +59,7 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+      <EquipmentStoppedAlert />
       <aside className="flex h-full w-72 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/60">
         <div className="flex items-center justify-between px-5 py-6">
           <div>
@@ -132,26 +128,6 @@ export default function Layout() {
 
               {navGroups.map((group) => (
                 <SidebarGroup key={group.label} {...group} />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-2 flex items-center gap-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              <span className="h-1 w-1 rounded-full bg-slate-400 dark:bg-slate-500" />
-              Sistema
-            </p>
-            <div className="space-y-1">
-              {systemNavItems.map((item) => (
-                <div
-                  key={item.label}
-                  title="Proximamente"
-                  className="flex cursor-not-allowed items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-400 dark:text-slate-600"
-                >
-                  <i className={`bx ${item.icon} text-base`} />
-                  <span className="flex-1">{item.label}</span>
-                  <i className="bx bx-chevron-right text-sm opacity-40" />
-                </div>
               ))}
             </div>
           </div>

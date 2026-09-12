@@ -1,8 +1,3 @@
-/**
- * Renderiza el isotipo de Aleri (public/aleri.svg) como una mascara CSS,
- * de forma que el color/gradiente se controle desde aqui sin editar el SVG
- * fuente (que trae un fill solido negro fijo).
- */
 export default function Logo({ className = '', gradient = false }) {
   const style = {
     WebkitMaskImage: 'url(/aleri.svg)',

@@ -70,7 +70,6 @@ export default function Login() {
     >
       <ThemeToggle className="absolute right-6 top-6 z-20" />
 
-      {/* Panel izquierdo: formulario */}
       <div className="flex w-full flex-col justify-center px-8 py-12 sm:px-16 lg:w-1/2 lg:px-20 xl:px-28">
         <motion.div
           initial="hidden"
@@ -168,7 +167,6 @@ export default function Login() {
         </motion.div>
       </div>
 
-      {/* Panel derecho: branding */}
       <div className="relative hidden overflow-hidden lg:flex lg:w-1/2 lg:items-center lg:justify-center bg-violet-50 dark:brand-panel-bg">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-violet-300/50 blur-3xl dark:bg-violet-600/40" />

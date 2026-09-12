@@ -11,7 +11,7 @@ export default function ThemeToggle({ className = '', variant = 'auto' }) {
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={() => toggleTheme()}
       aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
       className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${variantClasses} ${className}`}
     >

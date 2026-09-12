@@ -16,10 +16,10 @@ class SensorReadingController extends Controller
 
     public function index(Request $request)
     {
-        $query = SensorReading::with(['equipment', 'component', 'equipmentAnomalies']);
+        $query = SensorReading::with(['equipmentComponent.equipment', 'equipmentComponent.component', 'equipmentAnomalies']);
 
         if ($request->filled('equipment_id')) {
-            $query->where('equipment_id', $request->query('equipment_id'));
+            $query->whereHas('equipmentComponent', fn ($q) => $q->where('equipment_id', $request->query('equipment_id')));
         }
 
         if ($request->filled('with_anomalies')) {
@@ -31,10 +31,6 @@ class SensorReadingController extends Controller
         return response()->json($readings);
     }
 
-    /**
-     * Endpoint de ingesta: pensado para ser llamado por el controlador
-     * (Node.js) que lee los PLCs/sensores instalados en cada equipo.
-     */
     public function store(StoreSensorReadingRequest $request)
     {
         $reading = SensorReading::create($request->validated());
@@ -42,7 +38,7 @@ class SensorReadingController extends Controller
         $reading = $this->sensorMonitoring->processReading($reading);
 
         return response()->json(
-            $reading->load(['equipment', 'component', 'equipmentAnomalies']),
+            $reading->load(['equipmentComponent.equipment', 'equipmentComponent.component', 'equipmentAnomalies']),
             201
         );
     }
@@ -50,7 +46,7 @@ class SensorReadingController extends Controller
     public function show(SensorReading $sensorReading)
     {
         return response()->json(
-            $sensorReading->load(['equipment', 'component', 'equipmentAnomalies'])
+            $sensorReading->load(['equipmentComponent.equipment', 'equipmentComponent.component', 'equipmentAnomalies'])
         );
     }
 

@@ -14,8 +14,7 @@ class StoreSensorReadingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'equipment_id' => ['required', 'exists:equipments,id'],
-            'component_id' => ['required', 'exists:components,id'],
+            'equipment_component_id' => ['required', 'exists:equipment_components,id'],
             'temperature_celsius' => ['required', 'numeric'],
             'pressure_psi' => ['required', 'numeric', 'min:0'],
             'grease_level_percent' => ['required', 'numeric', 'min:0', 'max:100'],

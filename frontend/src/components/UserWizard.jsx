@@ -54,7 +54,7 @@ function permissionsFromUser(editingUser, modules) {
 
 export default function UserWizard({ open, onClose, modules, onSaved, usersApi, editingUser = null }) {
   const isEditing = Boolean(editingUser)
-  const [step, setStep] = useState('form') // 'form' | 'permissions' | 'detail'
+  const [step, setStep] = useState('form')
   const [activeModule, setActiveModule] = useState(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)

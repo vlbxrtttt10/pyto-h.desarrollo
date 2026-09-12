@@ -37,7 +37,7 @@ export default function Modal({ open, onClose, title, children, maxWidth = 'max-
               layout: { duration: 0.25, ease: 'easeInOut' },
               default: { duration: 0.18, ease: 'easeOut' },
             }}
-            className={`relative z-10 w-full ${maxWidth} overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900`}
+            className={`relative z-10 flex max-h-[calc(100vh-2rem)] w-full ${maxWidth} flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900`}
           >
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-800">
               <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
@@ -50,7 +50,7 @@ export default function Modal({ open, onClose, title, children, maxWidth = 'max-
                 <i className="bx bx-x text-xl" />
               </button>
             </div>
-            <div className="p-5">{children}</div>
+            <div className="scrollbar-thin overflow-y-auto p-5">{children}</div>
           </motion.div>
         </div>
       )}

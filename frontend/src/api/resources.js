@@ -43,6 +43,12 @@ export const componentsApi = {
   remove: (id) => client.delete(`/components/${id}`),
 }
 
+export const equipmentComponentsApi = {
+  list: (equipmentId) => client.get(`/equipments/${equipmentId}/components`),
+  create: (equipmentId, payload) => client.post(`/equipments/${equipmentId}/components`, payload),
+  remove: (equipmentId, id) => client.delete(`/equipments/${equipmentId}/components/${id}`),
+}
+
 export const usersApi = {
   list: () => client.get('/users'),
   modules: () => client.get('/users/modules'),

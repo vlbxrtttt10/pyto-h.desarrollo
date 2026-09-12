@@ -2,8 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Component;
-use App\Models\Equipment;
+use App\Models\EquipmentComponent;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SensorReadingFactory extends Factory
@@ -11,8 +10,7 @@ class SensorReadingFactory extends Factory
     public function definition(): array
     {
         return [
-            'equipment_id' => Equipment::factory(),
-            'component_id' => Component::factory(),
+            'equipment_component_id' => EquipmentComponent::factory(),
             'temperature_celsius' => $this->faker->randomFloat(2, 30, 60),
             'pressure_psi' => $this->faker->randomFloat(2, 40, 140),
             'grease_level_percent' => $this->faker->randomFloat(2, 40, 90),
