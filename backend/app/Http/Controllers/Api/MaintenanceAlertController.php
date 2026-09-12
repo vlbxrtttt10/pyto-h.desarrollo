@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\DashboardUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\MaintenanceAlert;
 use Illuminate\Http\Request;
@@ -28,6 +29,8 @@ class MaintenanceAlertController extends Controller
         ]);
 
         $maintenanceAlert->update($validated);
+
+        DashboardUpdated::dispatch('alert_status_changed');
 
         return response()->json($maintenanceAlert->fresh('equipment'));
     }

@@ -6,10 +6,9 @@ import { CauseBadge, SeverityBadge } from '../../components/Badge'
 
 const CAUSE_OPTIONS = [
   { value: '', label: 'Todas las causas' },
-  { value: 'pressure_drop', label: 'Caida de presion' },
-  { value: 'volume_mismatch', label: 'Desajuste de volumen' },
-  { value: 'cycle_time_increase', label: 'Ciclo mas lento' },
-  { value: 'possible_leak', label: 'Posible fuga' },
+  { value: 'overheating', label: 'Sobrecalentamiento' },
+  { value: 'overpressure', label: 'Sobrepresion' },
+  { value: 'low_grease_level', label: 'Bajo nivel de grasa' },
 ]
 
 export default function Anomalias() {
@@ -34,7 +33,7 @@ export default function Anomalias() {
             <i className="bx bx-error-alt text-violet-400" />
             Anomalias de equipo
           </h1>
-          <p className="mt-1 text-sm text-slate-500">Desviaciones detectadas automaticamente en las visitas de servicio.</p>
+          <p className="mt-1 text-sm text-slate-500">Fallas detectadas automaticamente en las lecturas de sensores.</p>
         </div>
 
         <select
@@ -64,10 +63,10 @@ export default function Anomalias() {
             <div key={anomaly.id} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900/60">
               <div className="flex items-center justify-between">
                 <Link
-                  to={`/equipos/${anomaly.service_visit?.equipment?.id}`}
+                  to="/equipos"
                   className="text-sm font-semibold text-slate-800 hover:text-violet-600 dark:text-slate-200 dark:hover:text-violet-400"
                 >
-                  {anomaly.service_visit?.equipment?.code}
+                  {anomaly.sensor_reading?.equipment?.code}
                 </Link>
                 <div className="flex items-center gap-1.5">
                   <CauseBadge cause={anomaly.cause} />
@@ -75,8 +74,8 @@ export default function Anomalias() {
                 </div>
               </div>
               <p className="mt-1 text-xs text-slate-500">
-                {anomaly.service_visit?.technician?.name} · {anomaly.service_visit?.component?.name} ·{' '}
-                {new Date(anomaly.service_visit?.visited_at).toLocaleDateString()}
+                {anomaly.sensor_reading?.component?.name} ·{' '}
+                {new Date(anomaly.sensor_reading?.read_at).toLocaleString()}
               </p>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{anomaly.explanation}</p>
               <p className="mt-2 text-xs font-medium text-amber-600 dark:text-amber-400">

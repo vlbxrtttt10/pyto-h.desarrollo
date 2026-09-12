@@ -1,0 +1,14 @@
+{
+  "name": "aleri-sensor-simulator",
+  "version": "1.0.0",
+  "description": "Simula el controlador (Node.js) que lee los PLCs/sensores instalados en los equipos de Hydromaq y envia lecturas a la API de Aleri.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node simulate.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5"
+  }
+}

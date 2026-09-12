@@ -6,11 +6,9 @@ import Notify from '../lib/notify'
 const MODULE_ICONS = {
   equipos: 'bx-wrench',
   componentes: 'bx-cog',
-  tecnicos: 'bx-id-card',
-  visitas: 'bx-trip',
+  lecturas: 'bx-broadcast',
   anomalias: 'bx-error-alt',
   alertas_mantenimiento: 'bx-bell',
-  ranking: 'bx-trophy',
   usuarios: 'bx-user',
 }
 

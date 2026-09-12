@@ -8,15 +8,14 @@ export const authApi = {
 
 export const dashboardApi = {
   summary: (params) => client.get('/dashboard/summary', { params }),
-  technicianRanking: (params) => client.get('/dashboard/technician-ranking', { params }),
   fleetOverview: () => client.get('/dashboard/fleet-overview'),
 }
 
-export const serviceVisitsApi = {
-  list: (params) => client.get('/service-visits', { params }),
-  create: (payload) => client.post('/service-visits', payload),
-  show: (id) => client.get(`/service-visits/${id}`),
-  remove: (id) => client.delete(`/service-visits/${id}`),
+export const sensorReadingsApi = {
+  list: (params) => client.get('/sensor-readings', { params }),
+  create: (payload) => client.post('/sensor-readings', payload),
+  show: (id) => client.get(`/sensor-readings/${id}`),
+  remove: (id) => client.delete(`/sensor-readings/${id}`),
 }
 
 export const equipmentAnomaliesApi = {
@@ -34,14 +33,6 @@ export const equipmentsApi = {
   show: (id) => client.get(`/equipments/${id}`),
   update: (id, payload) => client.put(`/equipments/${id}`, payload),
   remove: (id) => client.delete(`/equipments/${id}`),
-}
-
-export const techniciansApi = {
-  list: () => client.get('/technicians'),
-  create: (payload) => client.post('/technicians', payload),
-  show: (id) => client.get(`/technicians/${id}`),
-  update: (id, payload) => client.put(`/technicians/${id}`, payload),
-  remove: (id) => client.delete(`/technicians/${id}`),
 }
 
 export const componentsApi = {

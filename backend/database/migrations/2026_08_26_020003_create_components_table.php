@@ -12,9 +12,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->enum('equipment_type', ['ULM', 'ULP', 'UMO', 'ULE']);
-            $table->decimal('expected_pressure_psi', 8, 2)->comment('Presion de referencia esperada para este componente en condiciones normales');
-            $table->decimal('expected_volume_liters', 8, 2)->comment('Volumen de referencia dispensado por ciclo, usado por el motor de deteccion');
-            $table->decimal('expected_cycle_minutes', 8, 2)->comment('Duracion de referencia de un ciclo de trabajo');
+
+            // Rangos normales de operacion, definidos por el PLC/sensor instalado.
+            // Una lectura fuera de estos rangos dispara una anomalia.
+            $table->decimal('min_temperature_celsius', 8, 2)->comment('Temperatura minima normal de operacion');
+            $table->decimal('max_temperature_celsius', 8, 2)->comment('Temperatura maxima normal antes de sobrecalentamiento');
+            $table->decimal('min_pressure_psi', 8, 2)->comment('Presion minima normal de operacion');
+            $table->decimal('max_pressure_psi', 8, 2)->comment('Presion maxima normal antes de riesgo de fuga/derrame');
+            $table->decimal('min_grease_level_percent', 5, 2)->default(20)->comment('Nivel minimo de grasa antes de alertar por bajo nivel');
+
             $table->timestamps();
         });
     }

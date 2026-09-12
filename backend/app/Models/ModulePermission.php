@@ -14,11 +14,9 @@ class ModulePermission extends Model
     public const MODULES = [
         'equipos' => 'Equipos',
         'componentes' => 'Componentes',
-        'tecnicos' => 'Tecnicos',
-        'visitas' => 'Visitas de servicio',
+        'lecturas' => 'Lecturas de sensores',
         'anomalias' => 'Anomalias de equipo',
         'alertas_mantenimiento' => 'Alertas de mantenimiento',
-        'ranking' => 'Ranking de tecnicos',
         'usuarios' => 'Usuarios',
     ];
 

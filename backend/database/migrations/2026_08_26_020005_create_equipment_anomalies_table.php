@@ -10,12 +10,11 @@ return new class extends Migration
     {
         Schema::create('equipment_anomalies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_visit_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('sensor_reading_id')->constrained()->cascadeOnDelete();
             $table->enum('cause', [
-                'pressure_drop',
-                'volume_mismatch',
-                'cycle_time_increase',
-                'possible_leak',
+                'overheating',
+                'overpressure',
+                'low_grease_level',
                 'unknown',
             ]);
             $table->enum('severity', ['low', 'medium', 'high'])->default('medium');

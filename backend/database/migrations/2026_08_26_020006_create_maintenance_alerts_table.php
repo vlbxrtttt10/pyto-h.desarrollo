@@ -15,9 +15,9 @@ return new class extends Migration
             $table->text('description');
             $table->text('recommended_action')->nullable();
             $table->enum('risk_level', ['low', 'medium', 'high', 'critical'])->default('medium');
-            $table->decimal('consecutive_deviation_percent', 6, 2)->comment('Desviacion promedio sostenida que disparo la alerta');
-            $table->unsignedInteger('visits_considered')->default(0);
+            $table->unsignedInteger('readings_considered')->default(0);
             $table->enum('status', ['open', 'acknowledged', 'resolved'])->default('open');
+            $table->boolean('telegram_notified')->default(false)->comment('Si ya se envio la notificacion por Telegram para esta alerta');
             $table->timestamps();
         });
     }

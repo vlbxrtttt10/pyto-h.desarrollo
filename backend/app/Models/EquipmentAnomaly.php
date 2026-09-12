@@ -11,7 +11,7 @@ class EquipmentAnomaly extends Model
     use HasFactory;
 
     protected $fillable = [
-        'service_visit_id',
+        'sensor_reading_id',
         'cause',
         'severity',
         'estimated_downtime_hours',
@@ -25,8 +25,8 @@ class EquipmentAnomaly extends Model
         ];
     }
 
-    public function serviceVisit(): BelongsTo
+    public function sensorReading(): BelongsTo
     {
-        return $this->belongsTo(ServiceVisit::class);
+        return $this->belongsTo(SensorReading::class);
     }
 }
