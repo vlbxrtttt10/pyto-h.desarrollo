@@ -87,6 +87,20 @@ class TelegramNotifier
         ]);
     }
 
+    public function sendMessageWithButtons(int $chatId, string $text, array $inlineKeyboard): void
+    {
+        if (! $this->botToken) {
+            return;
+        }
+
+        Http::post("https://api.telegram.org/bot{$this->botToken}/sendMessage", [
+            'chat_id' => $chatId,
+            'text' => $text,
+            'parse_mode' => 'HTML',
+            'reply_markup' => json_encode(['inline_keyboard' => $inlineKeyboard]),
+        ]);
+    }
+
     public function answerCallbackQuery(string $callbackQueryId, string $text): void
     {
         if (! $this->botToken) {
