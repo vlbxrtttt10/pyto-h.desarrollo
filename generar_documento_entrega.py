@@ -344,6 +344,7 @@ add_simple_table(
     [
         ("main", "Rama principal. Contiene la version estable y probada del sistema, lista para ser presentada o desplegada."),
         ("develop", "Rama de integracion. Reune las funcionalidades ya desarrolladas antes de confirmarlas como parte de una nueva version estable."),
+        ("Develop-Erick", "Rama de integracion de un colaborador especifico (Erick). Se utilizo para desarrollar de forma aislada el bot de Telegram (comandos /cmds, /status, /parar) y los nuevos indicadores del dashboard, antes de integrarlos a develop/main."),
         ("feature/alertas-correo", "Rama de caracteristica. Desarrollo aislado del modulo de notificaciones automaticas por correo ante nuevas alertas de mantenimiento."),
         ("feature/equipos-mantenimiento", "Rama de caracteristica. Desarrollo aislado del modulo de gestion de equipos, componentes y visitas de servicio."),
         ("fix/correccion-dashboard", "Rama de correccion. Utilizada para solucionar errores puntuales detectados en produccion sin mezclar trabajo nuevo."),
@@ -378,6 +379,9 @@ add_simple_table(
         ("a66848c", "Fix de modulos nuevos con automatizacion, camiones, css news, modales"),
         ("ccd5f53", "Fix Aleri logo"),
         ("679add6", "Fix de arquitectura y de tema con pages"),
+        ("881e263", "docs: actualizar README con dominio de sensores, Telegram y Reverb"),
+        ("6a85f21", "fixed equipos"),
+        ("(rama Develop-Erick)", "feat: agregar comandos de Telegram (/cmds, /status, /parar) y KPIs de flota en el dashboard"),
     ],
 )
 add_body("Ejemplos de mensajes de commit propuestos para el flujo con ramas de funcionalidad:", bold=True)
@@ -480,6 +484,35 @@ add_body(
     "Recomendaciones generales: mantener los commits pequenos y enfocados en una sola "
     "tarea, actualizar la rama local con git pull antes de comenzar a trabajar cada dia, "
     "y nunca realizar cambios directamente sobre la rama main."
+)
+
+add_heading("4.2 Funcionalidad desarrollada en la rama Develop-Erick", level=2)
+add_body(
+    "Como ejemplo de desarrollo de una nueva funcionalidad aislada en su propia rama, se "
+    "implemento un bot de Telegram para el monitoreo y control de emergencia de la flota, "
+    "sobre el comando de consola telegram:poll ya existente en el proyecto "
+    "(backend/app/Console/Commands/PollTelegramUpdates.php)."
+)
+add_bullet("/cmds, /start, /help: muestran un menu principal con botones interactivos (flota completa, equipos por estado, alertas abiertas y ayuda), ademas de un resumen rapido de equipos registrados y alertas abiertas.")
+add_bullet("/status: muestra el estado de toda la flota agrupado por Operativo, En falla y En mantenimiento, con un resumen de totales por estado.")
+add_bullet("/status CODIGO: muestra el detalle de un equipo puntual (cliente, sitio, ultima lectura de sensores y alertas abiertas).")
+add_bullet("/parar CODIGO: implementa una parada de emergencia manual, que permite detener un equipo desde Telegram sin necesidad de que el sistema haya detectado una anomalia por sensores. El bot solicita confirmacion mediante botones (Si, detener ahora / Cancelar) antes de ejecutar la accion, para evitar detenciones accidentales.")
+add_body(
+    "Al confirmarse una parada de emergencia, el sistema registra una nueva alerta de "
+    "mantenimiento (riesgo critico, con la descripcion 'Parada de emergencia manual'), "
+    "actualiza el estado del equipo a 'en_falla' en la base de datos, y emite el evento "
+    "EquipmentStoppedViaTelegram por WebSocket (Laravel Reverb) para reflejar el cambio "
+    "en tiempo real en el dashboard web, sin necesidad de recargar la pagina."
+)
+
+add_heading("4.3 Nuevos indicadores en el dashboard", level=2)
+add_body(
+    "Se incorporaron cuatro indicadores adicionales al panel principal (frontend/src/pages/"
+    "Dashboard.jsx), calculados a partir de los datos de la flota que ya expone el endpoint "
+    "/dashboard/fleet-overview: equipos totales, equipos en falla, equipos en mantenimiento "
+    "y equipos operativos. Estos indicadores se actualizan automaticamente junto con el resto "
+    "del dashboard cuando se recibe el evento dashboard.updated, incluyendo los cambios de "
+    "estado originados desde el bot de Telegram."
 )
 
 doc.add_page_break()
