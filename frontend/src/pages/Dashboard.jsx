@@ -92,6 +92,11 @@ export default function Dashboard() {
     cause,
   }))
 
+  const totalEquipos = fleet.length
+  const equiposEnFalla = fleet.filter((e) => e.status === 'en_falla').length
+  const equiposEnMantenimiento = fleet.filter((e) => e.status === 'en_mantenimiento').length
+  const equiposOperativos = fleet.filter((e) => e.status === 'operativo').length
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -142,6 +147,33 @@ export default function Dashboard() {
           value={summary.open_maintenance_alerts}
           tone={summary.open_maintenance_alerts > 0 ? 'bad' : 'good'}
           icon="bx-bell"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Equipos totales"
+          value={totalEquipos}
+          hint="Registrados en la flota"
+          icon="bx-car"
+        />
+        <StatCard
+          label="Equipos en falla"
+          value={equiposEnFalla}
+          tone={equiposEnFalla > 0 ? 'bad' : 'good'}
+          icon="bx-error"
+        />
+        <StatCard
+          label="En mantenimiento"
+          value={equiposEnMantenimiento}
+          tone={equiposEnMantenimiento > 0 ? 'warn' : 'default'}
+          icon="bx-wrench"
+        />
+        <StatCard
+          label="Equipos operativos"
+          value={equiposOperativos}
+          tone="good"
+          icon="bx-check-shield"
         />
       </div>
 

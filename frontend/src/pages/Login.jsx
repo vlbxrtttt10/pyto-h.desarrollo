@@ -208,17 +208,17 @@ export default function Login() {
           />
 
           <h3 className="mt-6 text-2xl font-semibold text-slate-900 dark:text-white">
-            Copiloto de Eficiencia Energetica
+            Mantenimiento Predictivo de Flota
           </h3>
           <p className="mt-3 text-sm leading-relaxed text-violet-800/70 dark:text-violet-200/80">
-            Audita, predice y corrige el consumo de combustible de tu flota minera en tiempo real.
+            Monitorea sensores en tiempo real, detecta anomalias y notifica alertas de mantenimiento al instante.
           </p>
 
           <div className="mt-10 grid grid-cols-3 gap-4 text-left">
             {[
-              { icon: 'bx-check-shield', title: 'Preciso', desc: 'Deteccion de anomalias por IA' },
-              { icon: 'bx-bolt-circle', title: 'Tiempo real', desc: 'Alertas al instante' },
-              { icon: 'bx-trophy', title: 'Gamificado', desc: 'Ranking de operadores' },
+              { icon: 'bx-pulse', title: 'Sensores', desc: 'Temperatura, presion y grasa' },
+              { icon: 'bx-bolt-circle', title: 'Tiempo real', desc: 'Alertas por Telegram' },
+              { icon: 'bx-wrench', title: 'Preventivo', desc: 'Deteccion temprana de fallas' },
             ].map((feature, i) => (
               <motion.div
                 key={feature.title}
