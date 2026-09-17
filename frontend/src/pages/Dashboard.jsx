@@ -22,12 +22,14 @@ const CRITICALITY_LABELS = {
 const STATUS_LABELS = {
   operativo: 'Operativo',
   en_falla: 'En falla',
+  paro_emergencia: 'Paro de emergencia',
   en_mantenimiento: 'En mantenimiento',
 }
 
 const STATUS_STYLES = {
   operativo: 'bg-brand-500/15 text-brand-700 dark:text-brand-400',
   en_falla: 'bg-rose-500/15 text-rose-700 dark:text-rose-400',
+  paro_emergencia: 'bg-orange-500/15 text-orange-700 dark:text-orange-400',
   en_mantenimiento: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
 }
 
@@ -94,6 +96,7 @@ export default function Dashboard() {
 
   const totalEquipos = fleet.length
   const equiposEnFalla = fleet.filter((e) => e.status === 'en_falla').length
+  const equiposParoEmergencia = fleet.filter((e) => e.status === 'paro_emergencia').length
   const equiposEnMantenimiento = fleet.filter((e) => e.status === 'en_mantenimiento').length
   const equiposOperativos = fleet.filter((e) => e.status === 'operativo').length
 
@@ -150,7 +153,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           label="Equipos totales"
           value={totalEquipos}
@@ -162,6 +165,12 @@ export default function Dashboard() {
           value={equiposEnFalla}
           tone={equiposEnFalla > 0 ? 'bad' : 'good'}
           icon="bx-error"
+        />
+        <StatCard
+          label="Paro de emergencia"
+          value={equiposParoEmergencia}
+          tone={equiposParoEmergencia > 0 ? 'warn' : 'good'}
+          icon="bx-stop-circle"
         />
         <StatCard
           label="En mantenimiento"

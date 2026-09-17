@@ -27,7 +27,7 @@ class MenuCallbackHandler implements TelegramCallbackHandler
 
         match ($option) {
             'flota' => $this->sendFleetStatus($chatId),
-            'en_falla', 'en_mantenimiento', 'operativo' => $this->sendEquipmentsByStatus($chatId, $option),
+            'en_falla', 'paro_emergencia', 'en_mantenimiento', 'operativo' => $this->sendEquipmentsByStatus($chatId, $option),
             'alertas' => $this->sendOpenAlerts($chatId),
             'ayuda' => $this->telegram->sendMessage($chatId, $this->formatter->help()),
             default => null,

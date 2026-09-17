@@ -39,8 +39,9 @@ class PararCommandHandler implements TelegramCommandHandler
             return;
         }
 
-        if ($equipment->status === 'en_falla') {
-            $this->telegram->sendMessage($chatId, "⚠️ El equipo <b>{$equipment->code}</b> ya esta detenido (En falla).");
+        if (in_array($equipment->status, ['en_falla', 'paro_emergencia'], true)) {
+            $label = $this->formatter->statusLabel($equipment->status);
+            $this->telegram->sendMessage($chatId, "⚠️ El equipo <b>{$equipment->code}</b> ya esta detenido ({$label}).");
 
             return;
         }

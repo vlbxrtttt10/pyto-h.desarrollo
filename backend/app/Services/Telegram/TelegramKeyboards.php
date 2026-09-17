@@ -15,11 +15,14 @@ class TelegramKeyboards
                 ['text' => '🔴 En falla', 'callback_data' => 'menu:en_falla'],
             ],
             [
+                ['text' => '🛑 Paro de emergencia', 'callback_data' => 'menu:paro_emergencia'],
                 ['text' => '🟡 En mantenimiento', 'callback_data' => 'menu:en_mantenimiento'],
-                ['text' => '🟢 Operativos', 'callback_data' => 'menu:operativo'],
             ],
             [
+                ['text' => '🟢 Operativos', 'callback_data' => 'menu:operativo'],
                 ['text' => '🔔 Alertas abiertas', 'callback_data' => 'menu:alertas'],
+            ],
+            [
                 ['text' => '❓ Ayuda', 'callback_data' => 'menu:ayuda'],
             ],
         ];

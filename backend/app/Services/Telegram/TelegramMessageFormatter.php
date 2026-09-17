@@ -10,6 +10,7 @@ class TelegramMessageFormatter
 {
     private const STATUS_GROUPS = [
         'en_falla' => ['emoji' => '🔴', 'titulo' => 'En falla'],
+        'paro_emergencia' => ['emoji' => '🛑', 'titulo' => 'Paro de emergencia'],
         'en_mantenimiento' => ['emoji' => '🟡', 'titulo' => 'En mantenimiento'],
         'operativo' => ['emoji' => '🟢', 'titulo' => 'Operativos'],
     ];
@@ -113,7 +114,7 @@ class TelegramMessageFormatter
             "{$this->statusEmoji($equipment->status)} <b>{$equipment->code}</b> ({$equipment->model})",
             "Cliente: {$equipment->client}",
             'Sitio: '.($equipment->site ?: 'No especificado'),
-            'Estado: '.strtoupper($equipment->status),
+            'Estado: '.strtoupper($this->statusLabel($equipment->status)),
         ];
 
         if ($lastReading) {

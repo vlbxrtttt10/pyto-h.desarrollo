@@ -8,6 +8,7 @@ import Notify, { Confirm } from '../../lib/notify'
 const STATUS_LABELS = {
   operativo: 'Operativo',
   en_falla: 'En falla',
+  paro_emergencia: 'Paro de emergencia',
   en_mantenimiento: 'En mantenimiento',
 }
 
@@ -357,6 +358,7 @@ export default function Equipos() {
               >
                 <option value="operativo">Operativo</option>
                 <option value="en_falla">En falla</option>
+                <option value="paro_emergencia">Paro de emergencia</option>
                 <option value="en_mantenimiento">En mantenimiento</option>
               </select>
             </div>

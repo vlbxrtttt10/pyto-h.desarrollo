@@ -13,7 +13,7 @@ class EquipmentEmergencyStopService
     {
         $alert->update(['status' => 'acknowledged']);
 
-        $this->stopAndDispatchEvents($alert);
+        $this->stopAndDispatchEvents($alert, 'en_falla');
     }
 
     public function createEmergencyStop(Equipment $equipment): MaintenanceAlert
@@ -30,14 +30,14 @@ class EquipmentEmergencyStopService
 
         $alert->setRelation('equipment', $equipment);
 
-        $this->stopAndDispatchEvents($alert);
+        $this->stopAndDispatchEvents($alert, 'paro_emergencia');
 
         return $alert;
     }
 
-    private function stopAndDispatchEvents(MaintenanceAlert $alert): void
+    private function stopAndDispatchEvents(MaintenanceAlert $alert, string $status): void
     {
-        $alert->equipment->update(['status' => 'en_falla']);
+        $alert->equipment->update(['status' => $status]);
 
         DashboardUpdated::dispatch('equipment_stopped_via_telegram');
         EquipmentStoppedViaTelegram::dispatch($alert);

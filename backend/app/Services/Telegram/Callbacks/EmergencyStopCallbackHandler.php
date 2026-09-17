@@ -42,7 +42,7 @@ class EmergencyStopCallbackHandler implements TelegramCallbackHandler
             return;
         }
 
-        if ($equipment->status === 'en_falla') {
+        if (in_array($equipment->status, ['en_falla', 'paro_emergencia'], true)) {
             $this->telegram->answerCallbackQuery($callback['id'], 'Este equipo ya estaba detenido.');
 
             return;
@@ -55,7 +55,7 @@ class EmergencyStopCallbackHandler implements TelegramCallbackHandler
             $message['chat']['id'],
             $message['message_id'],
             $message['text'],
-            '🛑 <b>Equipo detenido</b> — marcado como "En falla" en el sistema.'
+            '🛑 <b>Equipo detenido</b> — se origino un paro de emergencia.'
         );
     }
 }

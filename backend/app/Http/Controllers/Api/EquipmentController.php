@@ -22,7 +22,7 @@ class EquipmentController extends Controller
             'site' => ['nullable', 'string'],
             'criticality' => ['sometimes', 'in:alta,media,baja'],
             'install_date' => ['nullable', 'date'],
-            'status' => ['sometimes', 'in:operativo,en_falla,en_mantenimiento'],
+            'status' => ['sometimes', 'in:operativo,en_falla,en_mantenimiento,paro_emergencia'],
         ]);
 
         $validated['code'] = $this->nextCode($validated['type']);
@@ -62,7 +62,7 @@ class EquipmentController extends Controller
             'site' => ['nullable', 'string'],
             'criticality' => ['sometimes', 'in:alta,media,baja'],
             'install_date' => ['nullable', 'date'],
-            'status' => ['sometimes', 'in:operativo,en_falla,en_mantenimiento'],
+            'status' => ['sometimes', 'in:operativo,en_falla,en_mantenimiento,paro_emergencia'],
         ]);
 
         $equipment->update($validated);
