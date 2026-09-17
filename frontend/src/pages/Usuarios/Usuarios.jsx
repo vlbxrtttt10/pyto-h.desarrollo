@@ -5,25 +5,18 @@ import Loader from '../../components/Loader'
 import UserWizard from '../../components/UserWizard'
 import Notify, { Confirm } from '../../lib/notify'
 
-function hasModulePermission(user, module, action) {
-  if (!user) return false
-  if (user.is_super_admin) return true
-  const permission = user.module_permissions?.find((p) => p.module === module)
-  return Boolean(permission?.[action])
-}
-
 export default function Usuarios() {
-  const { user } = useAuth()
+  const { user, hasModulePermission } = useAuth()
   const [users, setUsers] = useState(null)
   const [modules, setModules] = useState(null)
   const [wizardOpen, setWizardOpen] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
   const [loadError, setLoadError] = useState(null)
 
-  const canView = hasModulePermission(user, 'usuarios', 'can_view')
-  const canCreate = hasModulePermission(user, 'usuarios', 'can_create')
-  const canEdit = hasModulePermission(user, 'usuarios', 'can_edit')
-  const canDelete = hasModulePermission(user, 'usuarios', 'can_delete')
+  const canView = hasModulePermission('usuarios', 'can_view')
+  const canCreate = hasModulePermission('usuarios', 'can_create')
+  const canEdit = hasModulePermission('usuarios', 'can_edit')
+  const canDelete = hasModulePermission('usuarios', 'can_delete')
 
   function load() {
     setLoadError(null)

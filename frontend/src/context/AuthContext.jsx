@@ -36,8 +36,16 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  function hasModulePermission(module, action = 'can_view') {
+    if (!user) return false
+    if (user.is_super_admin) return true
+
+    const permission = user.module_permissions?.find((p) => p.module === module)
+    return Boolean(permission?.[action])
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, hasModulePermission }}>
       {children}
     </AuthContext.Provider>
   )
