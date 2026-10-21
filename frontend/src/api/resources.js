@@ -53,6 +53,7 @@ export const equipmentComponentsApi = {
 export const reportsApi = {
   exportAnomalies: (params) =>
     client.get('/reports/anomalies/export', { params, responseType: 'blob' }),
+  monthlyDowntime: (params) => client.get('/reports/monthly-downtime', { params }),
 }
 
 export const usersApi = {
