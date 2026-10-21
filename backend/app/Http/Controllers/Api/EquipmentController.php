@@ -44,13 +44,30 @@ class EquipmentController extends Controller
 
     public function show(Equipment $equipment)
     {
-        return response()->json(
-            $equipment->load([
-                'equipmentComponents.component',
-                'sensorReadings' => fn ($q) => $q->with(['equipmentComponent.component', 'equipmentAnomalies'])->orderByDesc('read_at'),
-                'maintenanceAlerts',
-            ])
-        );
+        $equipment->load([
+            'equipmentComponents.component',
+            'sensorReadings' => fn ($q) => $q->with(['equipmentComponent.component', 'equipmentAnomalies'])->orderByDesc('read_at'),
+            'maintenanceAlerts',
+        ]);
+
+        $equipment->equipmentComponents->each(function ($equipmentComponent) {
+            $lifetimeHours = $equipmentComponent->component?->expected_lifetime_hours;
+
+            if (! $lifetimeHours || ! $equipmentComponent->installed_at) {
+                $equipmentComponent->lifetime_hours_used = null;
+                $equipmentComponent->lifetime_percent_used = null;
+
+                return;
+            }
+
+            $hoursUsed = $equipmentComponent->installed_at->diffInHours(now());
+            $percentUsed = min(100, round(($hoursUsed / $lifetimeHours) * 100, 1));
+
+            $equipmentComponent->lifetime_hours_used = $hoursUsed;
+            $equipmentComponent->lifetime_percent_used = $percentUsed;
+        });
+
+        return response()->json($equipment);
     }
 
     public function update(Request $request, Equipment $equipment)

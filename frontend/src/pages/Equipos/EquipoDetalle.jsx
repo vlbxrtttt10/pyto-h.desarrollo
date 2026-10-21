@@ -201,6 +201,7 @@ export default function EquipoDetalle() {
                   <tr className="border-b border-slate-200 bg-slate-50/70 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-800/30">
                     <th className="whitespace-nowrap px-4 py-3">Componente</th>
                     <th className="whitespace-nowrap px-4 py-3">Tipo</th>
+                    <th className="whitespace-nowrap px-4 py-3">Vida útil consumida</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -211,6 +212,29 @@ export default function EquipoDetalle() {
                       </td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
                         {item.component?.type || '—'}
+                      </td>
+                      <td className="px-4 py-3">
+                        {item.lifetime_percent_used == null ? (
+                          <span className="text-slate-400">—</span>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <div className="h-2 w-28 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                              <div
+                                className={`h-full rounded-full ${
+                                  item.lifetime_percent_used >= 90
+                                    ? 'bg-rose-500'
+                                    : item.lifetime_percent_used >= 70
+                                      ? 'bg-amber-500'
+                                      : 'bg-brand-500'
+                                }`}
+                                style={{ width: `${item.lifetime_percent_used}%` }}
+                              />
+                            </div>
+                            <span className="text-xs text-slate-500">
+                              {item.lifetime_percent_used}%
+                            </span>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}

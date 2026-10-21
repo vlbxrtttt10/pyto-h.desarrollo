@@ -18,6 +18,7 @@ class Component extends Model
         'min_pressure_psi',
         'max_pressure_psi',
         'min_grease_level_percent',
+        'expected_lifetime_hours',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class Component extends Model
             'min_pressure_psi' => 'decimal:2',
             'max_pressure_psi' => 'decimal:2',
             'min_grease_level_percent' => 'decimal:2',
+            'expected_lifetime_hours' => 'integer',
         ];
     }
 
