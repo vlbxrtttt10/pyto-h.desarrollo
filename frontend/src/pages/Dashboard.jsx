@@ -40,6 +40,8 @@ export default function Dashboard() {
   const [loadError, setLoadError] = useState(null)
   const [live, setLive] = useState(false)
   const [pulse, setPulse] = useState(false)
+  const [clientFilter, setClientFilter] = useState('')
+  const [criticalityFilter, setCriticalityFilter] = useState('')
   const pulseTimeout = useRef(null)
 
   function load() {
@@ -114,6 +116,14 @@ export default function Dashboard() {
   const equiposOperativos = fleet.filter(
     (e) => e.status === 'operativo'
   ).length
+
+  const clientOptions = [...new Set(fleet.map((e) => e.client))].sort()
+
+  const filteredFleet = fleet.filter((e) => {
+    if (clientFilter && e.client !== clientFilter) return false
+    if (criticalityFilter && e.criticality !== criticalityFilter) return false
+    return true
+  })
 
   return (
     <div className="space-y-7">
@@ -340,21 +350,64 @@ export default function Dashboard() {
 
           {/* Tabla */}
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white lg:col-span-2 dark:border-slate-800 dark:bg-slate-900/60">
-            <div className="flex flex-col gap-1 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
-              <div>
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  Estado actual de los equipos
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {totalEquipos} equipos registrados
-                </p>
+            <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 dark:border-slate-800">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Estado actual de los equipos
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {filteredFleet.length} de {totalEquipos} equipos
+                  </p>
+                </div>
+
+                <span className="text-xs text-slate-400">
+                  {equiposEnFalla > 0
+                    ? `${equiposEnFalla} equipo${equiposEnFalla > 1 ? 's' : ''} en falla`
+                    : 'Sin equipos en falla'}
+                </span>
               </div>
 
-              <span className="text-xs text-slate-400">
-                {equiposEnFalla > 0
-                  ? `${equiposEnFalla} equipo${equiposEnFalla > 1 ? 's' : ''} en falla`
-                  : 'Sin equipos en falla'}
-              </span>
+              <div className="flex flex-wrap gap-2">
+                <select
+                  value={clientFilter}
+                  onChange={(e) => setClientFilter(e.target.value)}
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                >
+                  <option value="">Todos los clientes</option>
+                  {clientOptions.map((client) => (
+                    <option key={client} value={client}>
+                      {client}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={criticalityFilter}
+                  onChange={(e) => setCriticalityFilter(e.target.value)}
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                >
+                  <option value="">Toda criticidad</option>
+                  {Object.entries(CRITICALITY_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+
+                {(clientFilter || criticalityFilter) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setClientFilter('')
+                      setCriticalityFilter('')
+                    }}
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                  >
+                    Limpiar filtros
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -386,7 +439,18 @@ export default function Dashboard() {
                 </thead>
 
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                  {fleet.map((equipment) => (
+                  {filteredFleet.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-4 py-8 text-center text-sm text-slate-500"
+                      >
+                        Ningún equipo coincide con los filtros seleccionados.
+                      </td>
+                    </tr>
+                  )}
+
+                  {filteredFleet.map((equipment) => (
                     <tr
                       key={equipment.id}
                       className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30"
