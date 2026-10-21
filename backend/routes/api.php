@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\EquipmentAnomalyController;
 use App\Http\Controllers\Api\EquipmentComponentController;
 use App\Http\Controllers\Api\EquipmentController;
 use App\Http\Controllers\Api\MaintenanceAlertController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SensorReadingController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/maintenance-alerts', [MaintenanceAlertController::class, 'index']);
     Route::patch('/maintenance-alerts/{maintenanceAlert}', [MaintenanceAlertController::class, 'update']);
+
+    Route::get('/reports/anomalies/export', [ReportController::class, 'exportAnomalies']);
 
     Route::get('/users/modules', [UserController::class, 'modules']);
     Route::apiResource('users', UserController::class);
