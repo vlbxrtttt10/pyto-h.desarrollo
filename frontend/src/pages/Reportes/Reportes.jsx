@@ -1,3 +1,7 @@
+import { useState } from 'react'
+import { reportsApi } from '../../api/resources'
+import Notify from '../../lib/notify'
+
 export default function Reportes() {
   return (
     <div className="space-y-6">
@@ -10,6 +14,8 @@ export default function Reportes() {
           Flujo completo de mantenimiento predictivo: desde el sensor instalado en el equipo hasta el aviso en Telegram.
         </p>
       </div>
+
+      <ExportAnomaliesCard />
 
       <FlowDiagram />
 
@@ -188,5 +194,84 @@ function LegendDot({ color, label }) {
       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
       {label}
     </span>
+  )
+}
+
+function ExportAnomaliesCard() {
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
+  const [exporting, setExporting] = useState(false)
+
+  async function handleExport() {
+    setExporting(true)
+    try {
+      const params = {}
+      if (from) params.from = from
+      if (to) params.to = to
+
+      const res = await reportsApi.exportAnomalies(params)
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `reporte-anomalias-${new Date().toISOString().slice(0, 10)}.csv`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+      Notify.success('Reporte exportado correctamente')
+    } catch {
+      Notify.failure('No se pudo exportar el reporte.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <i className="bx bx-download text-base text-violet-400" />
+            Exportar reporte de anomalías
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Descarga en CSV las anomalías detectadas, causa, severidad y horas de downtime evitadas por equipo.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-2">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-500">Desde</label>
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-500">Hasta</label>
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            <i className="bx bx-file text-base" />
+            {exporting ? 'Generando...' : 'Exportar CSV'}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }

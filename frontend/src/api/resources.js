@@ -50,6 +50,11 @@ export const equipmentComponentsApi = {
   remove: (equipmentId, id) => client.delete(`/equipments/${equipmentId}/components/${id}`),
 }
 
+export const reportsApi = {
+  exportAnomalies: (params) =>
+    client.get('/reports/anomalies/export', { params, responseType: 'blob' }),
+}
+
 export const usersApi = {
   list: () => client.get('/users'),
   modules: () => client.get('/users/modules'),
