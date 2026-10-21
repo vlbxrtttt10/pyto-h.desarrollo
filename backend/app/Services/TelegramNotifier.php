@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\MaintenanceAlert;
+use App\Services\Telegram\TelegramKeyboards;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -11,7 +12,7 @@ class TelegramNotifier
     private ?string $botToken;
     private ?string $chatId;
 
-    public function __construct()
+    public function __construct(private TelegramKeyboards $keyboards)
     {
         $this->botToken = config('services.telegram.bot_token');
         $this->chatId = config('services.telegram.chat_id');
@@ -33,9 +34,7 @@ class TelegramNotifier
             'text' => $message,
             'parse_mode' => 'HTML',
             'reply_markup' => json_encode([
-                'inline_keyboard' => [[
-                    ['text' => '🛑 Detener equipo', 'callback_data' => "stop_equipment:{$alert->id}"],
-                ]],
+                'inline_keyboard' => $this->keyboards->stopEquipmentFromAlert($alert),
             ]),
         ]);
 

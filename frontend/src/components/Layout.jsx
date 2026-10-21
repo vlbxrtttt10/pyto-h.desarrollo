@@ -11,37 +11,44 @@ const navGroups = [
     icon: 'bx-wrench',
     label: 'Flota',
     items: [
-      { to: '/equipos', label: 'Equipos' },
-      { to: '/componentes', label: 'Componentes' },
+      { to: '/equipos', label: 'Equipos', module: 'equipos' },
+      { to: '/componentes', label: 'Componentes', module: 'componentes' },
     ],
   },
   {
     icon: 'bx-broadcast',
     label: 'Monitoreo',
     items: [
-      { to: '/lecturas', label: 'Lecturas de sensores' },
+      { to: '/lecturas', label: 'Lecturas de sensores', module: 'lecturas' },
     ],
   },
   {
     icon: 'bx-error-alt',
     label: 'Alertas',
     items: [
-      { to: '/anomalias', label: 'Anomalias de equipo' },
-      { to: '/alertas-mantenimiento', label: 'Alertas de mantenimiento' },
+      { to: '/anomalias', label: 'Anomalias de equipo', module: 'anomalias' },
+      { to: '/alertas-mantenimiento', label: 'Alertas de mantenimiento', module: 'alertas_mantenimiento' },
     ],
   },
   {
     icon: 'bx-id-card',
     label: 'Personal',
     items: [
-      { to: '/usuarios', label: 'Usuarios' },
+      { to: '/usuarios', label: 'Usuarios', module: 'usuarios' },
     ],
   },
 ]
 
 export default function Layout() {
-  const { user, logout } = useAuth()
+  const { user, logout, hasModulePermission } = useAuth()
   const location = useLocation()
+
+  const visibleNavGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => hasModulePermission(item.module)),
+    }))
+    .filter((group) => group.items.length > 0)
 
   function handleLogout() {
     Confirm.show(
@@ -126,7 +133,7 @@ export default function Layout() {
                 )}
               </NavLink>
 
-              {navGroups.map((group) => (
+              {visibleNavGroups.map((group) => (
                 <SidebarGroup key={group.label} {...group} />
               ))}
             </div>
