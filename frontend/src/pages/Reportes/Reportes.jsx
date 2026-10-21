@@ -278,11 +278,13 @@ function ExportAnomaliesCard() {
       if (to) params.to = to
 
       const res = await reportsApi.exportAnomalies(params)
-      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8' })
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `reporte-anomalias-${new Date().toISOString().slice(0, 10)}.csv`
+      link.download = `reporte-anomalias-${new Date().toISOString().slice(0, 10)}.xlsx`
       document.body.appendChild(link)
       link.click()
       link.remove()
@@ -304,7 +306,7 @@ function ExportAnomaliesCard() {
             Exportar reporte de anomalías
           </p>
           <p className="mt-1 text-xs text-slate-500">
-            Descarga en CSV las anomalías detectadas, causa, severidad y horas de downtime evitadas por equipo.
+            Descarga en Excel las anomalías detectadas, causa, severidad y horas de downtime evitadas por equipo.
           </p>
         </div>
 
@@ -336,7 +338,7 @@ function ExportAnomaliesCard() {
             className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
           >
             <i className="bx bx-file text-base" />
-            {exporting ? 'Generando...' : 'Exportar CSV'}
+            {exporting ? 'Generando...' : 'Exportar Excel'}
           </button>
         </div>
       </div>
