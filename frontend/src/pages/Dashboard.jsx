@@ -46,6 +46,21 @@ const STATUS_STYLES = {
   en_mantenimiento: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
 }
 
+function formatTimeAgo(date) {
+  if (!date) return null
+
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+
+  if (seconds < 10) return 'justo ahora'
+  if (seconds < 60) return `hace ${seconds} s`
+
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `hace ${minutes} min`
+
+  const hours = Math.floor(minutes / 60)
+  return `hace ${hours} h`
+}
+
 export default function Dashboard() {
   const navigate = useNavigate()
   const [summary, setSummary] = useState(null)
@@ -57,6 +72,8 @@ export default function Dashboard() {
   const [pulse, setPulse] = useState(false)
   const [clientFilter, setClientFilter] = useState('')
   const [criticalityFilter, setCriticalityFilter] = useState('')
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(null)
+  const [, setTick] = useState(0)
   const pulseTimeout = useRef(null)
 
   function load() {
@@ -70,6 +87,7 @@ export default function Dashboard() {
         setFleet(fleetRes.data)
         setTrend(trendRes.data)
         setLoadError(null)
+        setLastUpdatedAt(new Date())
       })
       .catch((err) =>
         setLoadError(
@@ -101,6 +119,11 @@ export default function Dashboard() {
       echo.leave('dashboard')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 30000)
+    return () => clearInterval(interval)
   }, [])
 
   if (loading) return <Loader label="Cargando indicadores..." />
@@ -167,33 +190,41 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div
-          className={`flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-            live
-              ? 'border-brand-300 bg-brand-500/10 text-brand-700 dark:border-brand-700/50 dark:text-brand-400'
-              : 'border-slate-300 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400'
-          }`}
-        >
-          <span
-            className={`relative flex h-2 w-2 ${
-              pulse ? 'scale-125' : ''
-            } transition-transform`}
+        <div className="flex flex-col items-end gap-1">
+          <div
+            className={`flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              live
+                ? 'border-brand-300 bg-brand-500/10 text-brand-700 dark:border-brand-700/50 dark:text-brand-400'
+                : 'border-slate-300 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400'
+            }`}
           >
             <span
-              className={`absolute inline-flex h-full w-full rounded-full ${
-                live
-                  ? 'animate-ping bg-brand-500'
-                  : 'bg-slate-400'
-              } opacity-75`}
-            />
-            <span
-              className={`relative inline-flex h-2 w-2 rounded-full ${
-                live ? 'bg-brand-500' : 'bg-slate-400'
-              }`}
-            />
-          </span>
+              className={`relative flex h-2 w-2 ${
+                pulse ? 'scale-125' : ''
+              } transition-transform`}
+            >
+              <span
+                className={`absolute inline-flex h-full w-full rounded-full ${
+                  live
+                    ? 'animate-ping bg-brand-500'
+                    : 'bg-slate-400'
+                } opacity-75`}
+              />
+              <span
+                className={`relative inline-flex h-2 w-2 rounded-full ${
+                  live ? 'bg-brand-500' : 'bg-slate-400'
+                }`}
+              />
+            </span>
 
-          {live ? 'En vivo' : 'Conectando...'}
+            {live ? 'En vivo' : 'Conectando...'}
+          </div>
+
+          {lastUpdatedAt && (
+            <span className="text-xs text-slate-400">
+              Actualizado {formatTimeAgo(lastUpdatedAt)}
+            </span>
+          )}
         </div>
       </div>
 
