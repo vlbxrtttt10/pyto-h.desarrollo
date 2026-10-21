@@ -31,7 +31,7 @@ export default function Reportes() {
         <InfoCard
           icon="bx-server"
           title="2. Procesamiento"
-          text="Un controlador (Node.js) lee esas senales y las envia a la API de Aleri, que las compara contra el rango normal del componente."
+          text="Un controlador (Node-RED / Node.js) lee esas senales y las envia a la API de Aleri, que las compara contra el rango normal del componente."
         />
         <InfoCard
           icon="bxl-telegram"
@@ -74,7 +74,7 @@ function FlowDiagram() {
         <path d="M210 105 H 300" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="2" fill="none" markerEnd="url(#arrow)" />
         <EdgeLabel x={255} y={95} text="lee sensor" />
 
-        <NodeBox x={300} y={40} w={190} h={130} icon="bx-desktop" title="Controlador" subtitle="Node.js (simulado hoy)" accent="#22c55e" />
+        <NodeBox x={300} y={40} w={190} h={130} icon="bx-desktop" title="Controlador" subtitle="Node-RED / Node.js — simulado hoy" accent="#22c55e" />
 
         <path d="M490 105 H 580" className="stroke-slate-400 dark:stroke-slate-500" strokeWidth="2" fill="none" markerEnd="url(#arrow)" />
         <EdgeLabel x={535} y={95} text="POST" />
