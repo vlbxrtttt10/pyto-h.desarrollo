@@ -12,6 +12,7 @@ const emptyForm = {
   min_pressure_psi: '',
   max_pressure_psi: '',
   min_grease_level_percent: '',
+  expected_lifetime_hours: 2000,
 }
 
 export default function Componentes() {
@@ -54,6 +55,7 @@ export default function Componentes() {
       min_pressure_psi: componente.min_pressure_psi,
       max_pressure_psi: componente.max_pressure_psi,
       min_grease_level_percent: componente.min_grease_level_percent,
+      expected_lifetime_hours: componente.expected_lifetime_hours,
     })
     setError(null)
     setModalOpen(true)
@@ -138,6 +140,7 @@ export default function Componentes() {
                 <th className="px-4 py-3">Temperatura normal</th>
                 <th className="px-4 py-3">Presion normal</th>
                 <th className="px-4 py-3">Grasa minima</th>
+                <th className="px-4 py-3">Vida util</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -153,6 +156,7 @@ export default function Componentes() {
                     {Number(componente.min_pressure_psi).toFixed(0)} – {Number(componente.max_pressure_psi).toFixed(0)} PSI
                   </td>
                   <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{Number(componente.min_grease_level_percent).toFixed(0)}%</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{componente.expected_lifetime_hours} h</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-3">
                       <button
@@ -264,18 +268,32 @@ export default function Componentes() {
             </div>
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-slate-500">Nivel minimo de grasa (%)</label>
-            <input
-              required
-              type="number"
-              step="0.01"
-              min="0"
-              max="100"
-              value={form.min_grease_level_percent}
-              onChange={(e) => setForm({ ...form, min_grease_level_percent: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Nivel minimo de grasa (%)</label>
+              <input
+                required
+                type="number"
+                step="0.01"
+                min="0"
+                max="100"
+                value={form.min_grease_level_percent}
+                onChange={(e) => setForm({ ...form, min_grease_level_percent: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-500">Vida util estimada (horas)</label>
+              <input
+                required
+                type="number"
+                step="1"
+                min="1"
+                value={form.expected_lifetime_hours}
+                onChange={(e) => setForm({ ...form, expected_lifetime_hours: e.target.value })}
+                className="w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </div>
           </div>
 
           {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
