@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from 'recharts'
 import { dashboardApi } from '../api/resources'
 import StatCard from '../components/StatCard'
 import Loader from '../components/Loader'
@@ -38,6 +50,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [summary, setSummary] = useState(null)
   const [fleet, setFleet] = useState([])
+  const [trend, setTrend] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
   const [live, setLive] = useState(false)
@@ -47,10 +60,15 @@ export default function Dashboard() {
   const pulseTimeout = useRef(null)
 
   function load() {
-    return Promise.all([dashboardApi.summary(), dashboardApi.fleetOverview()])
-      .then(([summaryRes, fleetRes]) => {
+    return Promise.all([
+      dashboardApi.summary(),
+      dashboardApi.fleetOverview(),
+      dashboardApi.trend({ days: 14 }),
+    ])
+      .then(([summaryRes, fleetRes, trendRes]) => {
         setSummary(summaryRes.data)
         setFleet(fleetRes.data)
+        setTrend(trendRes.data)
         setLoadError(null)
       })
       .catch((err) =>
@@ -273,6 +291,75 @@ export default function Dashboard() {
             tone="good"
             icon="bx-check-shield"
           />
+        </div>
+      </section>
+
+      {/* Tendencia temporal */}
+      <section>
+        <div className="mb-3 flex items-center gap-2">
+          <i className="bx bx-trending-up text-lg text-slate-400" />
+          <div>
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+              Tendencia de los últimos 14 días
+            </h2>
+            <p className="text-xs text-slate-500">
+              Lecturas recibidas y anomalías detectadas por día
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
+          {trend.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <i className="bx bx-line-chart text-3xl text-slate-300 dark:text-slate-700" />
+              <p className="mt-3 text-sm text-slate-500">
+                Sin datos de tendencia todavía.
+              </p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={trend} margin={{ left: -20 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(value) =>
+                    new Date(value).toLocaleDateString(undefined, {
+                      day: '2-digit',
+                      month: '2-digit',
+                    })
+                  }
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip
+                  labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                  contentStyle={{
+                    background: 'var(--color-slate-900, #0f172a)',
+                    border: 'none',
+                    borderRadius: 8,
+                    color: '#fff',
+                  }}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="readings"
+                  name="Lecturas"
+                  stroke="#6366f1"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="anomalies"
+                  name="Anomalías"
+                  stroke="#f43f5e"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </section>
 

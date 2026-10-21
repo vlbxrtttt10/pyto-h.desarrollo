@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
 
     Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
+    Route::get('/dashboard/trend', [DashboardController::class, 'trend']);
     Route::get('/dashboard/fleet-overview', [DashboardController::class, 'fleetOverview']);
 
     Route::apiResource('equipments', EquipmentController::class);
