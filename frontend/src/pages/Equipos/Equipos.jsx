@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { componentsApi, equipmentComponentsApi, equipmentsApi } from '../../api/resources'
 import Loader from '../../components/Loader'
 import Modal from '../../components/Modal'
+import EquipmentQrModal from '../../components/EquipmentQrModal'
 import { CauseBadge, SeverityBadge } from '../../components/Badge'
 import Notify, { Confirm } from '../../lib/notify'
 
@@ -42,6 +43,9 @@ export default function Equipos() {
   const [showModalOpen, setShowModalOpen] = useState(false)
   const [showEquipo, setShowEquipo] = useState(null)
   const [showError, setShowError] = useState(null)
+
+  const [qrModalOpen, setQrModalOpen] = useState(false)
+  const [qrEquipo, setQrEquipo] = useState(null)
 
   const [catalogComponents, setCatalogComponents] = useState([])
   const [selectedComponentId, setSelectedComponentId] = useState('')
@@ -166,6 +170,11 @@ export default function Equipos() {
     }
   }
 
+  function openQr(equipo) {
+    setQrEquipo(equipo)
+    setQrModalOpen(true)
+  }
+
   function handleDelete(equipo) {
     Confirm.show(
       'Eliminar equipo',
@@ -255,6 +264,13 @@ export default function Equipos() {
                       >
                         <i className="bx bx-show text-sm" />
                         Ver
+                      </button>
+                      <button
+                        onClick={() => openQr(equipo)}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                      >
+                        <i className="bx bx-qr text-sm" />
+                        QR
                       </button>
                       <button
                         onClick={() => openEdit(equipo)}
@@ -532,6 +548,12 @@ export default function Equipos() {
           </div>
         )}
       </Modal>
+
+      <EquipmentQrModal
+        open={qrModalOpen}
+        onClose={() => setQrModalOpen(false)}
+        equipment={qrEquipo}
+      />
     </div>
   )
 }
