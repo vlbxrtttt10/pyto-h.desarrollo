@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { reportsApi } from '../../api/resources'
 import Notify from '../../lib/notify'
 
@@ -14,6 +15,8 @@ export default function Reportes() {
           Flujo completo de mantenimiento predictivo: desde el sensor instalado en el equipo hasta el aviso en Telegram.
         </p>
       </div>
+
+      <MonthlyDowntimeCard />
 
       <ExportAnomaliesCard />
 
@@ -194,6 +197,71 @@ function LegendDot({ color, label }) {
       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
       {label}
     </span>
+  )
+}
+
+function MonthlyDowntimeCard() {
+  const [data, setData] = useState(null)
+  const [loadError, setLoadError] = useState(null)
+
+  useEffect(() => {
+    reportsApi
+      .monthlyDowntime({ months: 12 })
+      .then((res) => setData(res.data))
+      .catch(() => setLoadError('No se pudo cargar el comparativo mensual.'))
+  }, [])
+
+  const totalHours = (data || []).reduce((sum, m) => sum + m.downtime_hours_avoided, 0)
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <i className="bx bx-bar-chart-alt-2 text-base text-violet-400" />
+            Comparativo mensual de downtime evitado
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Horas de downtime evitadas por mes gracias al mantenimiento predictivo — argumento del ROI del sistema.
+          </p>
+        </div>
+
+        {data && (
+          <span className="whitespace-nowrap rounded-full bg-brand-500/10 px-3 py-1.5 text-xs font-semibold text-brand-700 dark:text-brand-400">
+            {totalHours.toFixed(1)} h en 12 meses
+          </span>
+        )}
+      </div>
+
+      {loadError ? (
+        <p className="py-8 text-center text-sm text-rose-600 dark:text-rose-400">{loadError}</p>
+      ) : !data ? (
+        <p className="py-8 text-center text-sm text-slate-500">Cargando...</p>
+      ) : data.every((m) => m.downtime_hours_avoided === 0) ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <i className="bx bx-bar-chart-alt text-3xl text-slate-300 dark:text-slate-700" />
+          <p className="mt-3 text-sm text-slate-500">Sin downtime evitado registrado en este periodo.</p>
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={data} margin={{ left: -20 }}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+            <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+            <Tooltip
+              formatter={(value) => [`${value} h`, 'Downtime evitado']}
+              contentStyle={{
+                background: 'var(--color-slate-900, #0f172a)',
+                border: 'none',
+                borderRadius: 8,
+                color: '#fff',
+              }}
+            />
+            <Bar dataKey="downtime_hours_avoided" fill="#6366f1" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      )}
+    </div>
   )
 }
 

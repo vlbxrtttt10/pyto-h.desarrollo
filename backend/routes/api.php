@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/maintenance-alerts/{maintenanceAlert}', [MaintenanceAlertController::class, 'update']);
 
     Route::get('/reports/anomalies/export', [ReportController::class, 'exportAnomalies']);
+    Route::get('/reports/monthly-downtime', [ReportController::class, 'monthlyDowntime']);
 
     Route::get('/users/modules', [UserController::class, 'modules']);
     Route::apiResource('users', UserController::class);
