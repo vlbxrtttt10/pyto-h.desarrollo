@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 
 import Equipos from './pages/Equipos/Equipos'
+import EquipoDetalle from './pages/Equipos/EquipoDetalle'
 
 import Componentes from './pages/Componentes/Componentes'
 
@@ -51,6 +52,7 @@ export default function App() {
         <Route index element={<Dashboard />} />
 
         <Route path="equipos" element={<Equipos />} />
+        <Route path="equipos/:id" element={<EquipoDetalle />} />
 
         <Route path="componentes" element={<Componentes />} />
 

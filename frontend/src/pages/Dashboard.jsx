@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 import { dashboardApi } from '../api/resources'
 import StatCard from '../components/StatCard'
@@ -34,6 +35,7 @@ const STATUS_STYLES = {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate()
   const [summary, setSummary] = useState(null)
   const [fleet, setFleet] = useState([])
   const [loading, setLoading] = useState(true)
@@ -453,7 +455,8 @@ export default function Dashboard() {
                   {filteredFleet.map((equipment) => (
                     <tr
                       key={equipment.id}
-                      className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                      onClick={() => navigate(`/equipos/${equipment.id}`)}
+                      className="cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30"
                     >
                       <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-800 dark:text-slate-200">
                         {equipment.code}
