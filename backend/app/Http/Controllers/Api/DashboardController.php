@@ -46,6 +46,40 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function trend(Request $request)
+    {
+        $days = (int) $request->query('days', 14);
+        $days = max(1, min($days, 90));
+
+        $since = now()->subDays($days - 1)->startOfDay();
+
+        $readingsByDay = SensorReading::query()
+            ->where('read_at', '>=', $since)
+            ->selectRaw('DATE(read_at) as day, COUNT(*) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day');
+
+        $anomaliesByDay = EquipmentAnomaly::query()
+            ->join('sensor_readings', 'sensor_readings.id', '=', 'equipment_anomalies.sensor_reading_id')
+            ->where('sensor_readings.read_at', '>=', $since)
+            ->selectRaw('DATE(sensor_readings.read_at) as day, COUNT(*) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day');
+
+        $series = collect();
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $day = now()->subDays($i)->format('Y-m-d');
+
+            $series->push([
+                'date' => $day,
+                'readings' => (int) ($readingsByDay[$day] ?? 0),
+                'anomalies' => (int) ($anomaliesByDay[$day] ?? 0),
+            ]);
+        }
+
+        return response()->json($series->values());
+    }
+
     public function fleetOverview()
     {
         $equipments = Equipment::withCount('sensorReadings')

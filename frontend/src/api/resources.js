@@ -8,6 +8,7 @@ export const authApi = {
 
 export const dashboardApi = {
   summary: (params) => client.get('/dashboard/summary', { params }),
+  trend: (params) => client.get('/dashboard/trend', { params }),
   fleetOverview: () => client.get('/dashboard/fleet-overview'),
 }
 
