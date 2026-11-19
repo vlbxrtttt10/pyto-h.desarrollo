@@ -1,0 +1,119 @@
+name: CD
+
+on:
+  # Cada merge a main se despliega en GitHub Pages
+  push:
+    branches: [main]
+    # Cada tag de version publica un Release con los paquetes listos para instalar
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  build-pages:
+    name: Build frontend (GitHub Pages)
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      # GitHub Pages no conoce las rutas de la SPA: 404.html devuelve la app y React Router resuelve la ruta
+      - name: Fallback para rutas de la SPA
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy-pages:
+    name: Deploy a GitHub Pages
+    needs: build-pages
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  release:
+    name: Publicar Release
+    needs: ci
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, zip, gd
+          coverage: none
+
+      - name: Build del frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Backend sin dependencias de desarrollo
+        working-directory: backend
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+
+      - name: Empaquetar
+        run: |
+          mkdir -p release
+          (cd frontend/dist && zip -qr "../../release/aleri-frontend-$TAG.zip" .)
+          zip -qr "release/aleri-backend-$TAG.zip" backend \
+            -x 'backend/.env' 'backend/node_modules/*' 'backend/tests/*' \
+               'backend/storage/logs/*' 'backend/storage/framework/cache/data/*'
+          (cd release && sha256sum *.zip > SHA256SUMS.txt)
+
+      - name: Crear o actualizar el Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 \
+            || gh release create "$TAG" --verify-tag --title "Aleri $TAG" --generate-notes
+          gh release upload "$TAG" release/* --clobber

@@ -6,7 +6,8 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:5173')],
+    // Lista separada por comas, p. ej. el dev server y el frontend publicado en GitHub Pages
+    'allowed_origins' => array_map('trim', explode(',', env('FRONTEND_URL', 'http://localhost:5173'))),
 
     'allowed_origins_patterns' => [],
 

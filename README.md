@@ -109,3 +109,30 @@ Sin el paso 3, el Dashboard sigue funcionando pero no se actualiza solo (hay que
 5. Cualquiera de estos eventos dispara `DashboardUpdated`, que via Reverb actualiza el Dashboard del frontend en tiempo real, sin recargar la pagina.
 
 Mas detalle visual del flujo completo esta disponible dentro del sistema en la pagina **Reportes**.
+
+## Integracion y entrega continua (CI/CD)
+
+El repositorio tiene dos workflows de GitHub Actions en `.github/workflows/`:
+
+| Workflow | Cuando se ejecuta | Que hace |
+|---|---|---|
+| `ci.yml` (CI) | Cada pull request hacia `main` o `develop` y cada push a `develop` | Backend: `composer install` + `php artisan test`. Frontend: `npm ci` + `npm run lint` + `npm run build`. |
+| `cd.yml` (CD) | Cada push a `main` y cada tag `v*` | Ejecuta primero el CI completo; si falla, no se despliega nada. |
+
+El pipeline de CD tiene dos salidas:
+
+1. **Despliegue continuo del frontend (push a `main`)**: compila el frontend con `VITE_BASE=/pyto-h.desarrollo/` y lo publica en GitHub Pages: https://vlbxrtttt10.github.io/pyto-h.desarrollo/
+2. **Entrega de versiones (tag `vX.Y.Z`)**: genera y adjunta al Release de GitHub:
+   - `aleri-frontend-vX.Y.Z.zip`: el frontend compilado, listo para servir desde cualquier servidor web.
+   - `aleri-backend-vX.Y.Z.zip`: el backend con dependencias de produccion (`composer install --no-dev`), sin `.env` ni tests.
+   - `SHA256SUMS.txt`: sumas de verificacion de los paquetes.
+
+Para publicar una version nueva:
+
+```bash
+git switch main && git pull
+git tag -a v1.1.0 -m "Aleri v1.1.0"
+git push origin v1.1.0      # el pipeline crea el Release y sube los paquetes
+```
+
+El frontend publicado en GitHub Pages consume la API definida en `VITE_API_URL` (por defecto `http://localhost:8000/api`). Para usarlo, el backend tiene que estar corriendo y aceptar ese origen: `FRONTEND_URL` admite varios origenes separados por coma, por ejemplo `FRONTEND_URL=http://localhost:5173,https://vlbxrtttt10.github.io`.

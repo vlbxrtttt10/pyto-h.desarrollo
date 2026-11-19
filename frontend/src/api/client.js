@@ -17,8 +17,9 @@ client.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('aleri_token')
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login'
+      const loginPath = `${import.meta.env.BASE_URL}login`
+      if (window.location.pathname !== loginPath) {
+        window.location.href = loginPath
       }
     }
     return Promise.reject(error)

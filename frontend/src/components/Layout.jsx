@@ -1,6 +1,8 @@
+import { Suspense } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
+import Loader from './Loader'
 import ThemeToggle from './ThemeToggle'
 import SidebarGroup from './SidebarGroup'
 import EquipmentStoppedAlert from './EquipmentStoppedAlert'
@@ -143,7 +145,7 @@ export default function Layout() {
         <div className="border-t border-slate-200 px-4 py-4 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-violet-500 to-indigo-700">
-              <img src="/user.svg" alt="" className="h-full w-full object-cover" />
+              <img src={`${import.meta.env.BASE_URL}user.svg`} alt="" className="h-full w-full object-cover" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">{user?.name}</p>
@@ -171,7 +173,9 @@ export default function Layout() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
-            <Outlet />
+            <Suspense fallback={<Loader />}>
+              <Outlet />
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
