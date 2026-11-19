@@ -8,7 +8,7 @@ export default function EquipmentQrModal({ open, onClose, equipment }) {
   const [error, setError] = useState(null)
 
   const equipmentUrl = equipment
-    ? `${window.location.origin}/equipos/${equipment.id}`
+    ? `${window.location.origin}${import.meta.env.BASE_URL}equipos/${equipment.id}`
     : ''
 
   useEffect(() => {

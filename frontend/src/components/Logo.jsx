@@ -1,7 +1,7 @@
 export default function Logo({ className = '', gradient = false }) {
   const style = {
-    WebkitMaskImage: 'url(/aleri.svg)',
-    maskImage: 'url(/aleri.svg)',
+    WebkitMaskImage: `url(${import.meta.env.BASE_URL}aleri.svg)`,
+    maskImage: `url(${import.meta.env.BASE_URL}aleri.svg)`,
     WebkitMaskRepeat: 'no-repeat',
     maskRepeat: 'no-repeat',
     WebkitMaskPosition: 'center',

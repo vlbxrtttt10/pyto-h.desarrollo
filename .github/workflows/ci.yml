@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [develop]
   pull_request:
     branches: [main, develop]
+  # En main y en los tags lo ejecuta el pipeline de CD antes de desplegar
+  workflow_call:
 
 jobs:
   backend:
