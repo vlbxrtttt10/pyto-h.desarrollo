@@ -1,6 +1,8 @@
+import { Suspense } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
+import Loader from './Loader'
 import ThemeToggle from './ThemeToggle'
 import SidebarGroup from './SidebarGroup'
 import EquipmentStoppedAlert from './EquipmentStoppedAlert'
@@ -171,7 +173,9 @@ export default function Layout() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
-            <Outlet />
+            <Suspense fallback={<Loader />}>
+              <Outlet />
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
